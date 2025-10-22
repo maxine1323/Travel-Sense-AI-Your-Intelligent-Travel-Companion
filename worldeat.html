@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全球餐廳搜尋器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Golden sparkle background elements */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, rgba(217, 185, 115, 0.4), transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(217, 185, 115, 0.3), transparent),
+                radial-gradient(1px 1px at 90px 40px, rgba(217, 185, 115, 0.5), transparent),
+                radial-gradient(1px 1px at 130px 80px, rgba(217, 185, 115, 0.4), transparent),
+                radial-gradient(2px 2px at 160px 30px, rgba(217, 185, 115, 0.3), transparent);
+            background-repeat: repeat;
+            background-size: 200px 100px;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.6;
+        }
+        
+        /* Ensure content is above background */
+        nav, .max-w-7xl, footer, .fixed {
+            position: relative;
+            z-index: 2;
+        }
+        
+        @keyframes heartBeat {
+            0% { transform: scale(1); }
+            14% { transform: scale(1.3); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.3); }
+            70% { transform: scale(1); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% { transform: translate3d(0,0,0); }
+            40%, 43% { transform: translate3d(0,-8px,0); }
+            70% { transform: translate3d(0,-4px,0); }
+            90% { transform: translate3d(0,-2px,0); }
+        }
+        
+        .heart-beat {
+            animation: heartBeat 1.3s ease-in-out;
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        .bounce-animation {
+            animation: bounce 1s ease-in-out;
+        }
+        
+        .book-btn-pulse {
+            animation: pulse 1.5s infinite;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .notification {
+            animation: slideInRight 0.3s ease-out;
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .modal-backdrop {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes cardEnter {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px) scale(0.95); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+            }
+        }
+        
+        @keyframes modalScale {
+            from { 
+                opacity: 0; 
+                transform: scale(0.9); 
+            }
+            to { 
+                opacity: 1; 
+                transform: scale(1); 
+            }
+        }
+        
+        .card-enter {
+            animation: cardEnter 0.5s ease-out forwards;
+        }
+        
+        .modal-scale {
+            animation: modalScale 0.3s ease-out;
+        }
+        
+        .sticky-header {
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.95);
+        }
+        
+        .language-menu {
+            transform: translateY(-10px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .language-menu.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .btn-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-active:active {
+            transform: translateY(0);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .image-placeholder {
+            background: linear-gradient(45deg, #f3f4f6, #e5e7eb);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .image-placeholder::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        /* Enhanced favorite button styles */
+        .favorite-btn {
+            transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.9) !important;
+            backdrop-filter: blur(10px);
+            border: 2px solid #000000 !important;
+            color: #000000 !important;
+        }
+        
+        .favorite-btn.favorited {
+            background: rgba(236, 72, 153, 0.9) !important;
+            border: 2px solid #ec4899 !important;
+            color: #ffffff !important;
+        }
+        
+        .favorite-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Loading spinner */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .fa-spin {
+            animation: spin 1s linear infinite;
+        }
+        
+        /* Enhanced button states */
+        .btn-loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        .btn-success {
+            background: linear-gradient(to right, #10b981, #059669) !important;
+        }
+        
+        /* Book table button styles */
+        .book-table-btn {
+            background-color: #000000 !important;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .book-table-btn:not(.clicked):hover .book-btn-text {
+            opacity: 0;
+        }
+        
+        .book-table-btn:not(.clicked):hover .book-btn-check {
+            opacity: 1;
+            color: #000000;
+            font-size: 1rem;
+        }
+        
+        .book-table-btn:not(.clicked):hover {
+            background-color: #000000 !important;
+            color: #000000;
+        }
+        
+        .book-table-btn:not(.clicked):hover::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ffffff;
+            z-index: 1;
+        }
+        
+        .book-table-btn .book-btn-check {
+            z-index: 2;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .book-table-btn:active {
+            animation: bounce 0.6s ease-in-out;
+        }
+        
+        .book-table-btn.clicked {
+            background: linear-gradient(135deg, #cd7f32, #b8860b) !important;
+            color: white !important;
+        }
+        
+        .book-table-btn.clicked::before {
+            display: none;
+        }
+        /* Restaurant image styles */
+        .restaurant-image {
+            transition: all 0.3s ease;
+            object-fit: cover;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .restaurant-image:hover {
+            transform: scale(1.05);
+        }
+        
+        .restaurant-emoji {
+            transition: all 0.3s ease;
+        }
+        /* Delete button styles */
+        .delete-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+        
+        .delete-btn:hover {
+            background: rgba(220, 38, 38, 1);
+            transform: scale(1.1);
+        }
+        /* Collection card styles */
+        .collection-card {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .collection-card:hover .delete-btn {
+            opacity: 1;
+        }
+        
+        .collection-card .delete-btn {
+            opacity: 0;
+        }
+        /* Image loading states */
+        .image-loading {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body class="min-h-screen" style="background-color: #F5EEE5; background-image: radial-gradient(circle at 20% 30%, rgba(217, 185, 115, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(217, 185, 115, 0.08) 0%, transparent 50%), radial-gradient(circle at 40% 80%, rgba(217, 185, 115, 0.06) 0%, transparent 50%);">
+    
+    <!-- Navigation -->
+    <nav id="mainNav" class="bg-white shadow-lg sticky top-0 z-40 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                
+                <!-- Left Side: Title -->
+                <div class="flex items-center">
+                    <i class="fas fa-utensils text-2xl text-indigo-600 mr-3"></i>
+                    <!-- Updated title from image -->
+                    <h1 class="text-xl font-bold text-gray-900" data-translate="title">餐廳</h1>
+                </div>
+                
+                <!-- Right Side: Links & Buttons -->
+                <div class="flex items-center space-x-4 md:space-x-8">
+                    
+                    <!-- My Collection -->
+                    <button id="myCollectionBtn" class="flex items-center text-gray-700 hover:text-indigo-600 transition-colors text-sm font-medium whitespace-nowrap">
+                        <i class="fas fa-heart mr-2"></i>
+                        <span data-translate="myCollection" class="whitespace-nowrap">我的收藏</span>
+                        <!-- Updated count from image -->
+                        <span id="collectionCount" class="ml-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">1</span>
+                    </button>
+                    
+                    <!-- Analytics -->
+                    <button id="analyticsBtn" class="flex items-center text-gray-700 hover:text-indigo-600 transition-colors text-sm font-medium">
+                        <i class="fas fa-chart-bar mr-2"></i>
+                        <span data-translate="analytics">分析報表</span>
+                        <!-- For vertical text like the image, you would add the 'text-vertical' class -->
+                        <!-- <span data-translate="analytics" class="text-vertical">分析報表</span> -->
+                    </button>
+                    
+                    <!-- Stats -->
+                    <div class="hidden sm:flex items-center text-gray-600 text-sm font-medium">
+                        <i class="fas fa-globe-americas mr-2 text-indigo-600"></i>
+                        <span>57 Cities • 6 Continents</span>
+                    </div>
+                    
+                    <div class="relative">
+                        <select id="languageSelect" class="bg-white border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="en">English</option>
+                            <option value="zh" selected>繁體中文</option>
+                            <option value="ja">日本語</option>
+                            <option value="fr">Français</option>
+                            <option value="de">Deutsch</option>
+                            <option value="ko">한국어</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Search and Filters -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <!-- Search Bar -->
+            <div class="mb-6">
+                <div class="relative">
+                    <input type="text" id="searchInput" class="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" data-translate-placeholder="searchPlaceholder" placeholder="依名稱、城市、料理、價格、關鍵字搜尋...">
+                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <button id="clearSearch" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 hidden">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Filters -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2" data-translate="continent">大洲</label>
+                    <select id="continentFilter" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="" data-translate="allContinents">所有大洲</option>
+                        <option value="asia">Asia</option>
+                        <option value="europe">Europe</option>
+                        <option value="north-america">North America</option>
+                        <option value="south-america">South America</option>
+                        <option value="africa">Africa</option>
+                        <option value="oceania">Oceania</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2" data-translate="city">城市</label>
+                    <select id="cityFilter" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="" data-translate="allCities">所有城市</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2" data-translate="type">類型</label>
+                    <select id="typeFilter" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="" data-translate="allTypes">所有類型</option>
+                        <option value="fine-dining" data-translate="fineDining">高級餐廳</option>
+                        <option value="local" data-translate="localCuisine">在地料理</option>
+                        <option value="street" data-translate="streetFood">街頭小吃</option>
+                        <option value="familyRestaurant" data-translate="familyRestaurant">家庭餐廳</option>
+                        <option value="dessert" data-translate="dessert">甜點</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2" data-translate="priceRange">價格範圍</label>
+                    <select id="priceFilter" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="" data-translate="allPrices">所有價格</option>
+                        <option value="budget" data-translate="budget">經濟實惠</option>
+                        <option value="mid-range" data-translate="midRange">中等價位</option>
+                        <option value="upscale" data-translate="upscale">高檔消費</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Sort and Tags -->
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+                <div class="flex items-center space-x-4">
+                    <label class="text-sm font-medium text-gray-700" data-translate="sortBy">排序依據:</label>
+                    <select id="sortBy" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="rating" data-translate="highestRating">評分最高</option>
+                        <option value="price-low" data-translate="priceLowHigh">價格：低到高</option>
+                        <option value="price-high" data-translate="priceHighLow">價格：高到低</option>
+                        <option value="popularity" data-translate="popularity">人氣</option>
+                        <option value="name" data-translate="nameAZ">名稱 A-Z</option>
+                    </select>
+                </div>
+                
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm font-medium text-gray-700" data-translate="showPerPage">每頁顯示:</span>
+                    <select id="itemsPerPage" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="12">12</option>
+                        <option value="24">24</option>
+                        <option value="48">48</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Food Tags -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2" data-translate="popularTags">熱門標籤:</label>
+                <div class="flex flex-wrap gap-3">
+                    <button class="food-tag px-4 py-2 bg-gray-200 text-gray-700 rounded-full text-sm font-medium hover:bg-indigo-100 hover:text-indigo-700 transition-colors" data-tag="fine-dining" data-translate="fineDining">高級餐廳</button>
+                    <button class="food-tag px-4 py-2 bg-gray-200 text-gray-700 rounded-full text-sm font-medium hover:bg-indigo-100 hover:text-indigo-700 transition-colors" data-tag="casual" data-translate="casual">休閒</button>
+                    <button class="food-tag px-4 py-2 bg-gray-200 text-gray-700 rounded-full text-sm font-medium hover:bg-indigo-100 hover:text-indigo-700 transition-colors" data-tag="family" data-translate="family">家庭</button>
+                    <button class="food-tag px-4 py-2 bg-gray-200 text-gray-700 rounded-full text-sm font-medium hover:bg-indigo-100 hover:text-indigo-700 transition-colors" data-tag="street" data-translate="streetFood">街頭小吃</button>
+                    <button class="food-tag px-4 py-2 bg-gray-200 text-gray-700 rounded-full text-sm font-medium hover:bg-indigo-100 hover:text-indigo-700 transition-colors" data-tag="vegetarian" data-translate="vegetarian">素食</button>
+                    <button class="food-tag px-4 py-2 bg-gray-200 text-gray-700 rounded-full text-sm font-medium hover:bg-indigo-100 hover:text-indigo-700 transition-colors" data-tag="dessert" data-translate="dessert">甜點</button>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex space-x-4">
+                <button id="searchBtn" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-all duration-200 transform hover:scale-105 font-medium">
+                    <i class="fas fa-search mr-2"></i>
+                    <span data-translate="search">搜尋</span>
+                </button>
+                <button id="resetFilters" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition-all duration-200 transform hover:scale-105 font-medium">
+                    <i class="fas fa-undo mr-2"></i>
+                    <span data-translate="resetFilters">重置所有篩選</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Results -->
+        <div id="resultsSection">
+            <div id="restaurantGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+                <!-- Restaurant cards will be inserted here -->
+            </div>
+            
+            <div id="loadMoreContainer" class="text-center">
+                <button id="loadMoreBtn" class="bg-indigo-600 text-white px-8 py-3 rounded-lg hover:bg-indigo-700 transition-colors">
+                    <span data-translate="loadMore">載入更多</span>
+                </button>
+            </div>
+            
+            <div id="noResults" class="text-center py-12 hidden">
+                <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-600 mb-2" data-translate="noRestaurants">找不到餐廳</h3>
+                <p class="text-gray-500 mb-4" data-translate="tryDifferent">請嘗試不同的搜尋條件</p>
+                <button id="resetSearch" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors" data-translate="resetSearch">重置搜尋</button>
+            </div>
+        </div>
+    </div>
+    <!-- Restaurant Detail Modal -->
+    <div id="restaurantModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden modal-backdrop">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-4xl w-full max-h-screen overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <h2 id="modalTitle" class="text-2xl font-bold text-gray-900"></h2>
+                        <button id="closeModal" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div>
+                            <!-- Enhanced Restaurant Image -->
+                            <div class="relative mb-6">
+                                <div id="modalImageContainer" class="w-full h-80 bg-gradient-to-br from-orange-200 to-red-200 rounded-xl flex items-center justify-center text-8xl relative overflow-hidden shadow-lg">
+                                    <img id="modalRestaurantImage" class="w-full h-full object-cover rounded-xl hidden restaurant-image" alt="Restaurant Image" onerror="this.style.display='none'; document.getElementById('modalImageEmoji').style.display='block';">
+                                    <div id="modalImageEmoji" class="text-8xl restaurant-emoji"></div>
+                                    <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-5 transition-all duration-300"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Restaurant Details -->
+                            <div class="bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl p-6 shadow-sm">
+                                <h3 class="text-lg font-bold mb-4 text-gray-800 flex items-center">
+                                    <i class="fas fa-info-circle mr-2 text-blue-600"></i>
+                                    <span data-translate="restaurantDetails">餐廳詳情</span>
+                                </h3>
+                                <div id="modalDetails" class="space-y-4">
+                                    <!-- Details will be inserted here -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <!-- Description Section -->
+                            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                                <h3 class="text-lg font-bold mb-3 text-gray-800 flex items-center" data-translate="description">
+                                    <i class="fas fa-align-left mr-2 text-indigo-600"></i>
+                                    描述
+                                </h3>
+                                <p id="modalDescription" class="text-gray-600 leading-relaxed"></p>
+                            </div>
+                            
+                            <!-- Facilities Section -->
+                            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                                <h3 class="text-lg font-bold mb-3 text-gray-800 flex items-center" data-translate="facilities">
+                                    <i class="fas fa-concierge-bell mr-2 text-green-600"></i>
+                                    設施
+                                </h3>
+                                <div id="modalFacilities" class="grid grid-cols-2 gap-2">
+                                    <!-- Facilities will be inserted here -->
+                                </div>
+                            </div>
+                            
+                            <!-- Signature Dishes Section -->
+                            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                                <h3 class="text-lg font-bold mb-3 text-gray-800 flex items-center" data-translate="signatureDishes">
+                                    <i class="fas fa-utensils mr-2 text-orange-600"></i>
+                                    招牌料理
+                                </h3>
+                                <div id="modalSignatureDishes" class="space-y-3">
+                                    <!-- Signature dishes will be inserted here -->
+                                </div>
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                                <div class="grid grid-cols-1 gap-3">
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <button id="modalBookBtn" class="bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 px-6 rounded-xl font-bold hover:from-green-600 hover:to-emerald-700 transition-all duration-200 transform hover:scale-105 shadow-lg h-14 flex items-center justify-center">
+                                            <i class="fas fa-calendar-plus mr-2"></i>
+                                            <span data-translate="bookNow">立即預訂</span>
+                                        </button>
+                                        <button id="modalVisitedBtn" class="bg-gradient-to-r from-yellow-500 to-orange-600 text-white py-4 px-6 rounded-xl font-bold hover:from-yellow-600 hover:to-orange-700 transition-all duration-200 transform hover:scale-105 shadow-lg h-14 flex items-center justify-center">
+                                            <i class="fas fa-check mr-2"></i>
+                                            <span data-translate="markVisited">標記已造訪</span>
+                                        </button>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <button id="modalFavoriteBtn" class="bg-gradient-to-r from-red-500 to-pink-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-red-600 hover:to-pink-700 transition-all duration-200 transform hover:scale-105 shadow-lg h-12 flex items-center justify-center">
+                                            <i class="fas fa-heart mr-2"></i>
+                                            <span data-translate="addToFavorites">加入收藏</span>
+                                        </button>
+                                        <button id="modalShareBtn" class="bg-gradient-to-r from-purple-500 to-indigo-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-purple-600 hover:to-indigo-700 transition-all duration-200 transform hover:scale-105 shadow-lg h-12 flex items-center justify-center">
+                                            <i class="fas fa-share-alt mr-2"></i>
+                                            <span data-translate="share">分享</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Share Modal -->
+                            <div id="shareModal" class="hidden bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                                <h3 class="text-lg font-bold mb-4 text-gray-800 flex items-center" data-translate="shareRestaurant">
+                                    <i class="fas fa-share-alt mr-2 text-blue-600"></i>
+                                    分享餐廳
+                                </h3>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <button class="share-btn flex items-center justify-center bg-gradient-to-r from-pink-500 to-rose-600 text-white py-3 px-4 rounded-lg hover:from-pink-600 hover:to-rose-700 transition-all duration-200" data-platform="instagram">
+                                        <i class="fab fa-instagram mr-2"></i>
+                                        Instagram
+                                    </button>
+                                    <button class="share-btn flex items-center justify-center bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 px-4 rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-200" data-platform="line">
+                                        <i class="fab fa-line mr-2"></i>
+                                        Line
+                                    </button>
+                                    <button class="share-btn flex items-center justify-center bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-4 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200" data-platform="facebook">
+                                        <i class="fab fa-facebook-f mr-2"></i>
+                                        Facebook
+                                    </button>
+                                    <button class="share-btn flex items-center justify-center bg-gradient-to-r from-gray-500 to-gray-600 text-white py-3 px-4 rounded-lg hover:from-gray-600 hover:to-gray-700 transition-all duration-200" data-platform="copy">
+                                        <i class="fas fa-copy mr-2"></i>
+                                        <span data-translate="copyLink">複製連結</span>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Price Comparison Section -->
+                            <div id="priceComparisonSection" class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                                <h3 class="text-lg font-bold mb-4 text-gray-800 flex items-center" data-translate="priceComparison">
+                                    <i class="fas fa-chart-line mr-2 text-blue-600"></i>
+                                    價格比較
+                                </h3>
+                                <div id="priceComparisonContent">
+                                    <!-- Price comparison content will be inserted here -->
+                                </div>
+                            </div>
+                            
+                            <!-- Similar Restaurants Section -->
+                            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                                <h3 class="text-lg font-bold mb-4 text-gray-800 flex items-center" data-translate="similarRestaurants">
+                                    <i class="fas fa-search mr-2 text-purple-600"></i>
+                                    類似餐廳
+                                </h3>
+                                <div id="similarRestaurants" class="space-y-3">
+                                    <!-- Similar restaurants will be inserted here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- My Collection Modal -->
+    <div id="collectionModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden modal-backdrop">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-6xl w-full max-h-screen overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900" data-translate="myCollection">我的收藏</h2>
+                        <button id="closeCollectionModal" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="flex space-x-4">
+                            <button class="collection-tab px-4 py-2 bg-indigo-600 text-white rounded-lg" data-tab="favorites" data-translate="favorites">收藏</button>
+                            <button class="collection-tab px-4 py-2 bg-gray-200 text-gray-700 rounded-lg" data-tab="visited" data-translate="visited">已造訪</button>
+                            <button class="collection-tab px-4 py-2 bg-gray-200 text-gray-700 rounded-lg" data-tab="booked" data-translate="booked">已預訂</button>
+                        </div>
+                    </div>
+                    
+                    <div id="collectionContent" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Collection items will be inserted here -->
+                    </div>
+                    
+                    <div id="emptyCollection" class="text-center py-12 hidden">
+                        <i class="fas fa-heart text-6xl text-gray-300 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-600 mb-2">這個收藏中沒有項目</h3>
+                        <p class="text-gray-500">開始新增餐廳，它們就會顯示在這裡！</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Analytics Modal -->
+    <div id="analyticsModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden modal-backdrop">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-6xl w-full max-h-screen overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900" data-translate="analytics">分析儀表板</h2>
+                        <button id="closeAnalyticsModal" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-blue-50 p-6 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-utensils text-2xl text-blue-600 mr-3"></i>
+                                <div>
+                                    <p class="text-sm text-gray-600" data-translate="totalRestaurants">餐廳總數</p>
+                                    <p id="totalRestaurants" class="text-2xl font-bold text-gray-900">0</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-green-50 p-6 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-city text-2xl text-green-600 mr-3"></i>
+                                <div>
+                                    <p class="text-sm text-gray-600" data-translate="totalCities">城市總數</p>
+                                    <p id="totalCities" class="text-2xl font-bold text-gray-900">0</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-yellow-50 p-6 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-star text-2xl text-yellow-600 mr-3"></i>
+                                <div>
+                                    <p class="text-sm text-gray-600" data-translate="avgRating">平均評分</p>
+                                    <p id="avgRating" class="text-2xl font-bold text-gray-900">0</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-purple-50 p-6 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-dollar-sign text-2xl text-purple-600 mr-3"></i>
+                                <div>
+                                    <p class="text-sm text-gray-600" data-translate="avgPrice">平均價格</p>
+                                    <p id="avgPrice" class="text-2xl font-bold text-gray-900">$0</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Charts -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="bg-white p-6 rounded-lg border">
+                            <h3 class="text-lg font-semibold mb-4" data-translate="restaurantsByContinent">各洲餐廳分佈</h3>
+                            <canvas id="continentChart" width="400" height="300"></canvas>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-lg border">
+                            <h3 class="text-lg font-semibold mb-4" data-translate="restaurantsByType">各類型餐廳分佈</h3>
+                            <canvas id="typeChart" width="400" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- About Section -->
+                <div class="col-span-1 md:col-span-2">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-utensils text-2xl text-indigo-400 mr-3"></i>
+                        <h3 class="text-xl font-bold" data-translate="title">全球餐廳搜尋器</h3>
+                    </div>
+                    <p class="text-gray-300 mb-4 leading-relaxed" data-translate="footerDescription">
+                        探索世界各地的精彩餐廳。從高級餐廳到街頭小吃，體驗橫跨6大洲200多個城市的美食之旅。
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-indigo-400 transition-colors">
+                            <i class="fab fa-facebook-f text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-indigo-400 transition-colors">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-indigo-400 transition-colors">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-indigo-400 transition-colors">
+                            <i class="fab fa-youtube text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Popular Cities -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-4" data-translate="popularCities">熱門城市</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-300 hover:text-indigo-400 transition-colors" data-translate="tokyo">東京</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-indigo-400 transition-colors" data-translate="paris">巴黎</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-indigo-400 transition-colors" data-translate="newyork">紐約</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-indigo-400 transition-colors" data-translate="london">倫敦</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-indigo-400 transition-colors" data-translate="bangkok">曼谷</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-indigo-400 transition-colors" data-translate="sydney">雪梨</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Quick Links -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-4" data-translate="quickLinks">快速連結</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-300 hover:text-indigo-400 transition-colors" data-translate="foodGuide">美食指南</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-indigo-400 transition-colors" data-translate="faq">常見問題</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-indigo-400 transition-colors" data-translate="contactUs">聯絡我們</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-indigo-400 transition-colors" data-translate="privacyPolicy">隱私政策</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-indigo-400 transition-colors" data-translate="termsOfService">服務條款</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-indigo-400 transition-colors" data-translate="support">客戶支援</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 text-sm" data-translate="copyright">
+                    © 2024 全球餐廳搜尋器。版權所有。
+                </p>
+                <div class="flex items-center mt-4 md:mt-0">
+                    <span class="text-gray-400 text-sm mr-4" data-translate="madeWith">用</span>
+                    <i class="fas fa-heart text-red-500 mx-1"></i>
+                    <span class="text-gray-400 text-sm ml-1" data-translate="forFoodLovers">為全世界的美食愛好者製作</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- Notification Container -->
+    <div id="notificationContainer" class="fixed top-4 right-4 z-50 space-y-2">
+        <!-- Notifications will be inserted here -->
+    </div>
+    <script src="./js/worldeate.js"></script>
+</body>
+</html>

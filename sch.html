@@ -1,0 +1,1820 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>旅遊行程規劃表 - Travel Itinerary Planner</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 5px solid #4facfe;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            margin: 0 0 20px 0;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #34495e;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .itinerary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .itinerary-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 10px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .itinerary-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: top;
+        }
+
+        .itinerary-table input, .itinerary-table select, .itinerary-table textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .itinerary-table textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .day-header {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #8b4513;
+            padding: 15px;
+            margin: 30px 0 20px 0;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .action-buttons {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .summary-box {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .summary-box h3 {
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+        }
+
+        .expense-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .expense-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .expense-item .label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .expense-item .amount {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .itinerary-table {
+                font-size: 0.8rem;
+            }
+            
+            .itinerary-table th, .itinerary-table td {
+                padding: 8px 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌍 旅遊行程規劃表</h1>
+            <p>Travel Itinerary Planner - 讓你的旅程更有條理！</p>
+        </div>
+
+        <div class="content">
+            <!-- Part 1: 行前準備 -->
+            <div class="section">
+                <h2>📋 Part 1: 行前準備與規劃</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>選擇洲別 Select Continent:</label>
+                        <select id="continentSelect" onchange="updateCountries()">
+                            <option value="">請選擇洲別...</option>
+                            <option value="asia">亞洲 Asia</option>
+                            <option value="europe">歐洲 Europe</option>
+                            <option value="northamerica">北美洲 North America</option>
+                            <option value="southamerica">南美洲 South America</option>
+                            <option value="africa">非洲 Africa</option>
+                            <option value="oceania">大洋洲 Oceania</option>
+                            <option value="antarctica">南極洲 Antarctica</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>選擇國家 Select Country:</label>
+                        <select id="countrySelect" onchange="updateDestination()">
+                            <option value="">請先選擇洲別...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>目的地 Destination:</label>
+                        <input type="text" id="destination" placeholder="例：日本東京" value="日本東京">
+                    </div>
+                    <div class="form-group">
+                        <label>旅遊天數 Duration:</label>
+                        <select id="durationSelect" onchange="updateDuration()">
+                            <option value="">選擇天數...</option>
+                            <option value="1天">1天 (當日來回)</option>
+                            <option value="2天1夜">2天1夜 (週末小旅行)</option>
+                            <option value="3天2夜">3天2夜 (短期旅遊)</option>
+                            <option value="4天3夜">4天3夜 (連假旅遊)</option>
+                            <option value="5天4夜">5天4夜 (標準旅遊)</option>
+                            <option value="7天6夜">7天6夜 (一週旅遊)</option>
+                            <option value="10天9夜">10天9夜 (深度旅遊)</option>
+                            <option value="14天13夜">14天13夜 (長期旅遊)</option>
+                            <option value="21天20夜">21天20夜 (背包客旅行)</option>
+                            <option value="30天29夜">30天29夜 (長期居遊)</option>
+                        </select>
+                        <input type="text" id="duration" placeholder="或自訂天數" value="5天4夜" style="margin-top: 8px;">
+                    </div>
+                    <div class="form-group">
+                        <label>預計總預算 Total Budget:</label>
+                        <select id="budgetSelect" onchange="updateBudget()">
+                            <option value="">選擇預算範圍...</option>
+                            <option value="NT$ 10,000">NT$ 10,000 (經濟型)</option>
+                            <option value="NT$ 20,000">NT$ 20,000 (小資族)</option>
+                            <option value="NT$ 35,000">NT$ 35,000 (標準型)</option>
+                            <option value="NT$ 50,000">NT$ 50,000 (舒適型)</option>
+                            <option value="NT$ 80,000">NT$ 80,000 (豪華型)</option>
+                            <option value="NT$ 120,000">NT$ 120,000 (奢華型)</option>
+                        </select>
+                        <input type="text" id="budget" placeholder="或自訂預算" value="NT$ 35,000" style="margin-top: 8px;">
+                    </div>
+                    <div class="form-group">
+                        <label>機票 Flight:</label>
+                        <input type="text" id="flight" placeholder="例：已預訂，來回 NT$ 12,000" value="已預訂，來回 NT$ 12,000">
+                    </div>
+                    <div class="form-group">
+                        <label>住宿 Accommodation:</label>
+                        <input type="text" id="accommodation" placeholder="例：已預訂，4晚 NT$ 8,000" value="已預訂，4晚 NT$ 8,000">
+                    </div>
+                    <div class="form-group">
+                        <label>餐飲 Meals:</label>
+                        <input type="text" id="meals" placeholder="例：預計每日 NT$ 1,200" value="預計每日 NT$ 1,200">
+                    </div>
+                    <div class="form-group">
+                        <label>必要文件 Documents:</label>
+                        <input type="text" id="documents" placeholder="例：護照、電子機票、住宿憑證" value="護照、電子機票、住宿憑證">
+                    </div>
+                    <div class="form-group">
+                        <label>網路 Internet:</label>
+                        <input type="text" id="internet" placeholder="例：預購 eSIM 卡 NT$ 450" value="預購 eSIM 卡 NT$ 450">
+                    </div>
+                    <div class="form-group">
+                        <label>交通票券 Transport Pass:</label>
+                        <input type="text" id="transport" placeholder="例：預計購買 Suica 卡" value="預計購買 Suica 卡">
+                    </div>
+                    <div class="form-group">
+                        <label>外幣 Foreign Currency:</label>
+                        <input type="text" id="currency" placeholder="例：兌換日幣 ¥60,000" value="兌換日幣 ¥60,000">
+                    </div>
+                    <div class="form-group">
+                        <label>旅遊保險 Travel Insurance:</label>
+                        <input type="text" id="insurance" placeholder="例：已投保 NT$ 800" value="已投保 NT$ 800">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Part 2: 每日行程 -->
+            <div class="section">
+                <h2>📅 Part 2: 詳細每日行程表</h2>
+                <div style="margin-bottom: 20px;">
+                    <button class="btn btn-success" onclick="addDay()">➕ 新增一天</button>
+                    <button class="btn btn-danger" onclick="removeDay()">➖ 刪除最後一天</button>
+                    <span style="margin-left: 20px; font-weight: 600;">目前天數: <span id="dayCount">2</span> 天</span>
+                </div>
+                
+                <div id="itineraryContainer">
+                    <!-- Day 1 -->
+                    <div class="day-header">✈️ Day 1: 出發啟程，抵達新世界</div>
+                    <table class="itinerary-table" data-day="1">
+                        <thead>
+                            <tr>
+                                <th style="width: 12%;">時間<br><small>備註</small></th>
+                                <th style="width: 25%;">活動項目</th>
+                                <th style="width: 20%;">交通方式</th>
+                                <th style="width: 15%;">所需時間</th>
+                                <th style="width: 18%;">花費金額</th>
+                                <th style="width: 5%;">🗑️</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <input type="time" value="05:00" style="width: 100%; margin-bottom: 5px;">
+                                    <textarea placeholder="備註" style="width: 100%; height: 40px; font-size: 0.8rem;">檢查所有證件、充電器是否帶齊</textarea>
+                                </td>
+                                <td>
+                            <input type="text" placeholder="活動內容" value="起床、最後整理" style="width: 100%; margin-bottom: 3px;">
+                            <select onchange="this.previousElementSibling.value = this.value; this.selectedIndex = 0;" style="width: 100%; font-size: 0.8rem;">
+                                <option value="">活動參考選項...</option>
+                                <optgroup label="🏨 住宿相關">
+                                    <option value="飯店 Check-in">飯店 Check-in</option>
+                                    <option value="飯店 Check-out">飯店 Check-out</option>
+                                    <option value="行李寄放">行李寄放</option>
+                                    <option value="房間休息">房間休息</option>
+                                </optgroup>
+                                <optgroup label="🍽️ 餐飲美食">
+                                    <option value="早餐">早餐</option>
+                                    <option value="午餐">午餐</option>
+                                    <option value="晚餐">晚餐</option>
+                                    <option value="下午茶">下午茶</option>
+                                    <option value="宵夜">宵夜</option>
+                                    <option value="當地特色料理">當地特色料理</option>
+                                    <option value="米其林餐廳">米其林餐廳</option>
+                                    <option value="街頭小吃">街頭小吃</option>
+                                    <option value="夜市美食">夜市美食</option>
+                                </optgroup>
+                                <optgroup label="🏛️ 觀光景點">
+                                    <option value="博物館參觀">博物館參觀</option>
+                                    <option value="古蹟巡禮">古蹟巡禮</option>
+                                    <option value="寺廟參拜">寺廟參拜</option>
+                                    <option value="城堡參觀">城堡參觀</option>
+                                    <option value="宮殿遊覽">宮殿遊覽</option>
+                                    <option value="展望台觀景">展望台觀景</option>
+                                    <option value="燈塔參觀">燈塔參觀</option>
+                                </optgroup>
+                                <optgroup label="🌿 自然景觀">
+                                    <option value="國家公園">國家公園</option>
+                                    <option value="登山健行">登山健行</option>
+                                    <option value="海灘戲水">海灘戲水</option>
+                                    <option value="湖泊遊覽">湖泊遊覽</option>
+                                    <option value="瀑布觀賞">瀑布觀賞</option>
+                                    <option value="溫泉泡湯">溫泉泡湯</option>
+                                    <option value="賞花踏青">賞花踏青</option>
+                                    <option value="動物園">動物園</option>
+                                </optgroup>
+                                <optgroup label="🎭 娛樂活動">
+                                    <option value="主題樂園">主題樂園</option>
+                                    <option value="遊樂園">遊樂園</option>
+                                    <option value="水族館">水族館</option>
+                                    <option value="電影院">電影院</option>
+                                    <option value="劇院表演">劇院表演</option>
+                                    <option value="音樂會">音樂會</option>
+                                    <option value="夜生活">夜生活</option>
+                                    <option value="酒吧">酒吧</option>
+                                </optgroup>
+                                <optgroup label="🛍️ 購物血拼">
+                                    <option value="百貨公司">百貨公司</option>
+                                    <option value="購物中心">購物中心</option>
+                                    <option value="傳統市場">傳統市場</option>
+                                    <option value="跳蚤市場">跳蚤市場</option>
+                                    <option value="免稅店">免稅店</option>
+                                    <option value="伴手禮採購">伴手禮採購</option>
+                                    <option value="精品店">精品店</option>
+                                </optgroup>
+                                <optgroup label="🚗 交通移動">
+                                    <option value="機場報到">機場報到</option>
+                                    <option value="登機">登機</option>
+                                    <option value="抵達機場">抵達機場</option>
+                                    <option value="入境通關">入境通關</option>
+                                    <option value="出境通關">出境通關</option>
+                                    <option value="搭乘交通工具">搭乘交通工具</option>
+                                    <option value="步行移動">步行移動</option>
+                                </optgroup>
+                                <optgroup label="💆 休閒放鬆">
+                                    <option value="SPA按摩">SPA按摩</option>
+                                    <option value="美容護理">美容護理</option>
+                                    <option value="咖啡廳休息">咖啡廳休息</option>
+                                    <option value="公園散步">公園散步</option>
+                                    <option value="海邊漫步">海邊漫步</option>
+                                    <option value="瑜伽冥想">瑜伽冥想</option>
+                                </optgroup>
+                                <optgroup label="📚 文化體驗">
+                                    <option value="文化課程">文化課程</option>
+                                    <option value="手作體驗">手作體驗</option>
+                                    <option value="料理教學">料理教學</option>
+                                    <option value="語言交流">語言交流</option>
+                                    <option value="當地導覽">當地導覽</option>
+                                    <option value="民俗表演">民俗表演</option>
+                                </optgroup>
+                            </select>
+                        </td>
+                                <td>
+                                    <input type="text" placeholder="交通方式" value="" style="width: 100%; margin-bottom: 3px;">
+                                    <select onchange="this.previousElementSibling.value = this.value; this.selectedIndex = 0;" style="width: 100%; font-size: 0.8rem;">
+                                        <option value="">參考選項...</option>
+                                        <optgroup label="🚶 步行與微型交通">
+                                            <option value="🚶 步行">🚶 步行</option>
+                                            <option value="🚲 腳踏車">🚲 腳踏車</option>
+                                            <option value="🚲 公共自行車">🚲 公共自行車 (Bike Share)</option>
+                                            <option value="⚡ 電動腳踏車">⚡ 電動腳踏車 (E-Bike)</option>
+                                            <option value="🛴 電動滑板車">🛴 電動滑板車 (E-Scooter)</option>
+                                            <option value="🛵 機車">🛵 機車</option>
+                                            <option value="🛵 電動機車">🛵 電動機車</option>
+                                        </optgroup>
+                                        <optgroup label="🚗 陸路交通">
+                                            <option value="🚗 自駕">🚗 自駕</option>
+                                            <option value="🚕 計程車">🚕 計程車</option>
+                                            <option value="🚐 共乘">🚐 共乘 (Uber/Lyft)</option>
+                                            <option value="🚌 公車">🚌 公車</option>
+                                            <option value="🚌 長途巴士">🚌 長途巴士</option>
+                                            <option value="🚐 小巴">🚐 小巴</option>
+                                            <option value="🚛 貨車">🚛 貨車</option>
+                                        </optgroup>
+                                        <optgroup label="🚄 軌道交通">
+                                            <option value="🚄 高速鐵路">🚄 高速鐵路 (HSR)</option>
+                                            <option value="🚆 城際鐵路">🚆 城際鐵路</option>
+                                            <option value="🚇 地鐵/捷運">🚇 地鐵/捷運 (Metro)</option>
+                                            <option value="🚊 市郊鐵路">🚊 市郊鐵路 (Commuter Rail)</option>
+                                            <option value="🚋 輕軌">🚋 輕軌 (Light Rail)</option>
+                                            <option value="🚋 有軌電車">🚋 有軌電車 (Tram)</option>
+                                            <option value="🚝 單軌系統">🚝 單軌系統 (Monorail)</option>
+                                            <option value="🚞 登山鐵路">🚞 登山鐵路</option>
+                                        </optgroup>
+                                        <optgroup label="✈️ 航空交通">
+                                            <option value="✈️ 民航班機">✈️ 民航班機</option>
+                                            <option value="✈️ 廉價航空">✈️ 廉價航空 (LCC)</option>
+                                            <option value="✈️ 包機">✈️ 包機 (Charter)</option>
+                                            <option value="🚁 直升機">🚁 直升機</option>
+                                            <option value="🛩️ 私人飛機">🛩️ 私人飛機</option>
+                                            <option value="🛩️ 水上飛機">🛩️ 水上飛機</option>
+                                        </optgroup>
+                                        <optgroup label="🚢 水上交通">
+                                            <option value="⛴️ 渡輪">⛴️ 渡輪 (Ferry)</option>
+                                            <option value="🚤 高速客船">🚤 高速客船</option>
+                                            <option value="🚤 水上計程車">🚤 水上計程車</option>
+                                            <option value="🛳️ 郵輪">🛳️ 郵輪 (Cruise)</option>
+                                            <option value="🚢 貨船">🚢 貨船</option>
+                                            <option value="🛶 內河航運">🛶 內河航運</option>
+                                        </optgroup>
+                                        <optgroup label="🚠 特殊交通">
+                                            <option value="🚠 纜車">🚠 纜車 (Cable Car)</option>
+                                            <option value="🚡 空中索道">🚡 空中索道 (Gondola)</option>
+                                            <option value="🎿 滑雪纜車">🎿 滑雪纜車 (Ski Lift)</option>
+                                            <option value="🏔️ 登山纜索">🏔️ 登山纜索</option>
+                                            <option value="🏜️ 沙漠越野車">🏜️ 沙漠越野車</option>
+                                            <option value="❄️ 雪上交通">❄️ 雪上交通</option>
+                                        </optgroup>
+                                    </select>
+                                </td>
+                                <td>
+                                    <select>
+                                        <option value="1小時" selected>1小時</option>
+                                        <option value="15分鐘">15分鐘</option>
+                                        <option value="30分鐘">30分鐘</option>
+                                        <option value="45分鐘">45分鐘</option>
+                                        <option value="1.5小時">1.5小時</option>
+                                        <option value="2小時">2小時</option>
+                                        <option value="2.5小時">2.5小時</option>
+                                        <option value="3小時">3小時</option>
+                                        <option value="4小時">4小時</option>
+                                        <option value="5小時">5小時</option>
+                                        <option value="6小時">6小時</option>
+                                        <option value="半天">半天</option>
+                                        <option value="全天">全天</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="text" placeholder="費用" value="NT$ 0" style="width: 100%; margin-bottom: 3px;">
+                                    <select onchange="this.previousElementSibling.value = this.value; this.selectedIndex = 0;" style="width: 100%; font-size: 0.8rem;">
+                                        <option value="">費用參考...</option>
+                                        <optgroup label="🍽️ 餐飲費用">
+                                            <option value="NT$ 50">NT$ 50 (便利商店)</option>
+                                            <option value="NT$ 150">NT$ 150 (速食/小吃)</option>
+                                            <option value="NT$ 300">NT$ 300 (一般餐廳)</option>
+                                            <option value="NT$ 600">NT$ 600 (中高級餐廳)</option>
+                                            <option value="NT$ 1,200">NT$ 1,200 (高級餐廳)</option>
+                                            <option value="NT$ 2,500">NT$ 2,500 (米其林餐廳)</option>
+                                        </optgroup>
+                                        <optgroup label="🎫 門票費用">
+                                            <option value="NT$ 0">NT$ 0 (免費景點)</option>
+                                            <option value="NT$ 100">NT$ 100 (小型景點)</option>
+                                            <option value="NT$ 300">NT$ 300 (博物館/寺廟)</option>
+                                            <option value="NT$ 600">NT$ 600 (主要景點)</option>
+                                            <option value="NT$ 1,200">NT$ 1,200 (主題樂園)</option>
+                                            <option value="NT$ 2,000">NT$ 2,000 (特殊體驗)</option>
+                                        </optgroup>
+                                        <optgroup label="🚗 交通費用">
+                                            <option value="NT$ 0">NT$ 0 (步行)</option>
+                                            <option value="NT$ 30">NT$ 30 (公車單程)</option>
+                                            <option value="NT$ 50">NT$ 50 (地鐵單程)</option>
+                                            <option value="NT$ 200">NT$ 200 (計程車短程)</option>
+                                            <option value="NT$ 500">NT$ 500 (計程車中程)</option>
+                                            <option value="NT$ 1,000">NT$ 1,000 (長程交通)</option>
+                                        </optgroup>
+                                        <optgroup label="🛍️ 購物費用">
+                                            <option value="NT$ 100">NT$ 100 (小紀念品)</option>
+                                            <option value="NT$ 300">NT$ 300 (伴手禮)</option>
+                                            <option value="NT$ 800">NT$ 800 (服飾配件)</option>
+                                            <option value="NT$ 1,500">NT$ 1,500 (精品小物)</option>
+                                            <option value="NT$ 3,000">NT$ 3,000 (高價商品)</option>
+                                        </optgroup>
+                                        <optgroup label="💆 休閒費用">
+                                            <option value="NT$ 200">NT$ 200 (咖啡廳)</option>
+                                            <option value="NT$ 800">NT$ 800 (溫泉泡湯)</option>
+                                            <option value="NT$ 1,500">NT$ 1,500 (SPA按摩)</option>
+                                            <option value="NT$ 2,500">NT$ 2,500 (高級SPA)</option>
+                                        </optgroup>
+                                    </select>
+                                </td>
+                                <td><button class="btn btn-danger" onclick="removeRow(this)" style="padding: 5px 8px; font-size: 0.8rem;">刪除</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button class="btn" onclick="addRow(1)" style="margin: 10px 0;">➕ 新增行程</button>
+
+                    <!-- Day 2 -->
+                    <div class="day-header">🗓️ Day 2: </div>
+                    <table class="itinerary-table" data-day="2">
+                        <thead>
+                            <tr>
+                                <th style="width: 12%;">時間<br><small>備註</small></th>
+                                <th style="width: 25%;">活動項目</th>
+                                <th style="width: 20%;">交通方式</th>
+                                <th style="width: 15%;">所需時間</th>
+                                <th style="width: 18%;">花費金額</th>
+                                <th style="width: 5%;">🗑️</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <input type="time" value="09:00" style="width: 100%; margin-bottom: 5px;">
+                                    <textarea placeholder="備註" style="width: 100%; height: 40px; font-size: 0.8rem;">從新宿搭JR山手線到神田，轉乘銀座線到淺草</textarea>
+                                </td>
+                                <td>
+                                    <input type="text" placeholder="活動內容" value="從飯店出發 → 淺草寺" style="width: 100%; margin-bottom: 3px;">
+                                    <select onchange="this.previousElementSibling.value = this.value; this.selectedIndex = 0;" style="width: 100%; font-size: 0.8rem;">
+                                        <option value="">活動參考選項...</option>
+                                        <optgroup label="🏨 住宿相關">
+                                            <option value="飯店 Check-in">飯店 Check-in</option>
+                                            <option value="飯店 Check-out">飯店 Check-out</option>
+                                            <option value="行李寄放">行李寄放</option>
+                                            <option value="房間休息">房間休息</option>
+                                        </optgroup>
+                                        <optgroup label="🍽️ 餐飲美食">
+                                            <option value="早餐">早餐</option>
+                                            <option value="午餐">午餐</option>
+                                            <option value="晚餐">晚餐</option>
+                                            <option value="下午茶">下午茶</option>
+                                            <option value="宵夜">宵夜</option>
+                                            <option value="當地特色料理">當地特色料理</option>
+                                            <option value="米其林餐廳">米其林餐廳</option>
+                                            <option value="街頭小吃">街頭小吃</option>
+                                            <option value="夜市美食">夜市美食</option>
+                                        </optgroup>
+                                        <optgroup label="🏛️ 觀光景點">
+                                            <option value="博物館參觀">博物館參觀</option>
+                                            <option value="古蹟巡禮">古蹟巡禮</option>
+                                            <option value="寺廟參拜">寺廟參拜</option>
+                                            <option value="城堡參觀">城堡參觀</option>
+                                            <option value="宮殿遊覽">宮殿遊覽</option>
+                                            <option value="展望台觀景">展望台觀景</option>
+                                            <option value="燈塔參觀">燈塔參觀</option>
+                                        </optgroup>
+                                        <optgroup label="🌿 自然景觀">
+                                            <option value="國家公園">國家公園</option>
+                                            <option value="登山健行">登山健行</option>
+                                            <option value="海灘戲水">海灘戲水</option>
+                                            <option value="湖泊遊覽">湖泊遊覽</option>
+                                            <option value="瀑布觀賞">瀑布觀賞</option>
+                                            <option value="溫泉泡湯">溫泉泡湯</option>
+                                            <option value="賞花踏青">賞花踏青</option>
+                                            <option value="動物園">動物園</option>
+                                        </optgroup>
+                                        <optgroup label="🎭 娛樂活動">
+                                            <option value="主題樂園">主題樂園</option>
+                                            <option value="遊樂園">遊樂園</option>
+                                            <option value="水族館">水族館</option>
+                                            <option value="電影院">電影院</option>
+                                            <option value="劇院表演">劇院表演</option>
+                                            <option value="音樂會">音樂會</option>
+                                            <option value="夜生活">夜生活</option>
+                                            <option value="酒吧">酒吧</option>
+                                        </optgroup>
+                                        <optgroup label="🛍️ 購物血拼">
+                                            <option value="百貨公司">百貨公司</option>
+                                            <option value="購物中心">購物中心</option>
+                                            <option value="傳統市場">傳統市場</option>
+                                            <option value="跳蚤市場">跳蚤市場</option>
+                                            <option value="免稅店">免稅店</option>
+                                            <option value="伴手禮採購">伴手禮採購</option>
+                                            <option value="精品店">精品店</option>
+                                        </optgroup>
+                                        <optgroup label="🚗 交通移動">
+                                            <option value="機場報到">機場報到</option>
+                                            <option value="登機">登機</option>
+                                            <option value="抵達機場">抵達機場</option>
+                                            <option value="入境通關">入境通關</option>
+                                            <option value="出境通關">出境通關</option>
+                                            <option value="搭乘交通工具">搭乘交通工具</option>
+                                            <option value="步行移動">步行移動</option>
+                                        </optgroup>
+                                        <optgroup label="💆 休閒放鬆">
+                                            <option value="SPA按摩">SPA按摩</option>
+                                            <option value="美容護理">美容護理</option>
+                                            <option value="咖啡廳休息">咖啡廳休息</option>
+                                            <option value="公園散步">公園散步</option>
+                                            <option value="海邊漫步">海邊漫步</option>
+                                            <option value="瑜伽冥想">瑜伽冥想</option>
+                                        </optgroup>
+                                        <optgroup label="📚 文化體驗">
+                                            <option value="文化課程">文化課程</option>
+                                            <option value="手作體驗">手作體驗</option>
+                                            <option value="料理教學">料理教學</option>
+                                            <option value="語言交流">語言交流</option>
+                                            <option value="當地導覽">當地導覽</option>
+                                            <option value="民俗表演">民俗表演</option>
+                                        </optgroup>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="text" placeholder="交通方式" value="🚇 地鐵" style="width: 100%; margin-bottom: 3px;">
+                                    <select onchange="this.previousElementSibling.value = this.value; this.selectedIndex = 0;" style="width: 100%; font-size: 0.8rem;">
+                                        <option value="">參考選項...</option>
+                                        <optgroup label="🚶 步行與微型交通">
+                                            <option value="🚶 步行">🚶 步行</option>
+                                            <option value="🚲 腳踏車">🚲 腳踏車</option>
+                                            <option value="🚲 公共自行車">🚲 公共自行車 (Bike Share)</option>
+                                            <option value="⚡ 電動腳踏車">⚡ 電動腳踏車 (E-Bike)</option>
+                                            <option value="🛴 電動滑板車">🛴 電動滑板車 (E-Scooter)</option>
+                                            <option value="🛵 機車">🛵 機車</option>
+                                            <option value="🛵 電動機車">🛵 電動機車</option>
+                                        </optgroup>
+                                        <optgroup label="🚗 陸路交通">
+                                            <option value="🚗 自駕">🚗 自駕</option>
+                                            <option value="🚕 計程車">🚕 計程車</option>
+                                            <option value="🚐 共乘">🚐 共乘 (Uber/Lyft)</option>
+                                            <option value="🚌 公車">🚌 公車</option>
+                                            <option value="🚌 長途巴士">🚌 長途巴士</option>
+                                            <option value="🚐 小巴">🚐 小巴</option>
+                                            <option value="🚛 貨車">🚛 貨車</option>
+                                        </optgroup>
+                                        <optgroup label="🚄 軌道交通">
+                                            <option value="🚄 高速鐵路">🚄 高速鐵路 (HSR)</option>
+                                            <option value="🚆 城際鐵路">🚆 城際鐵路</option>
+                                            <option value="🚇 地鐵/捷運">🚇 地鐵/捷運 (Metro)</option>
+                                            <option value="🚊 市郊鐵路">🚊 市郊鐵路 (Commuter Rail)</option>
+                                            <option value="🚋 輕軌">🚋 輕軌 (Light Rail)</option>
+                                            <option value="🚋 有軌電車">🚋 有軌電車 (Tram)</option>
+                                            <option value="🚝 單軌系統">🚝 單軌系統 (Monorail)</option>
+                                            <option value="🚞 登山鐵路">🚞 登山鐵路</option>
+                                        </optgroup>
+                                        <optgroup label="✈️ 航空交通">
+                                            <option value="✈️ 民航班機">✈️ 民航班機</option>
+                                            <option value="✈️ 廉價航空">✈️ 廉價航空 (LCC)</option>
+                                            <option value="✈️ 包機">✈️ 包機 (Charter)</option>
+                                            <option value="🚁 直升機">🚁 直升機</option>
+                                            <option value="🛩️ 私人飛機">🛩️ 私人飛機</option>
+                                            <option value="🛩️ 水上飛機">🛩️ 水上飛機</option>
+                                        </optgroup>
+                                        <optgroup label="🚢 水上交通">
+                                            <option value="⛴️ 渡輪">⛴️ 渡輪 (Ferry)</option>
+                                            <option value="🚤 高速客船">🚤 高速客船</option>
+                                            <option value="🚤 水上計程車">🚤 水上計程車</option>
+                                            <option value="🛳️ 郵輪">🛳️ 郵輪 (Cruise)</option>
+                                            <option value="🚢 貨船">🚢 貨船</option>
+                                            <option value="🛶 內河航運">🛶 內河航運</option>
+                                        </optgroup>
+                                        <optgroup label="🚠 特殊交通">
+                                            <option value="🚠 纜車">🚠 纜車 (Cable Car)</option>
+                                            <option value="🚡 空中索道">🚡 空中索道 (Gondola)</option>
+                                            <option value="🎿 滑雪纜車">🎿 滑雪纜車 (Ski Lift)</option>
+                                            <option value="🏔️ 登山纜索">🏔️ 登山纜索</option>
+                                            <option value="🏜️ 沙漠越野車">🏜️ 沙漠越野車</option>
+                                            <option value="❄️ 雪上交通">❄️ 雪上交通</option>
+                                        </optgroup>
+                                    </select>
+                                </td>
+                                <td>
+                                    <select>
+                                        <option value="15分鐘">15分鐘</option>
+                                        <option value="30分鐘">30分鐘</option>
+                                        <option value="45分鐘" selected>45分鐘</option>
+                                        <option value="1小時">1小時</option>
+                                        <option value="1.5小時">1.5小時</option>
+                                        <option value="2小時">2小時</option>
+                                        <option value="2.5小時">2.5小時</option>
+                                        <option value="3小時">3小時</option>
+                                        <option value="4小時">4小時</option>
+                                        <option value="5小時">5小時</option>
+                                        <option value="6小時">6小時</option>
+                                        <option value="半天">半天</option>
+                                        <option value="全天">全天</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="text" placeholder="費用" value="JPY ¥300" style="width: 100%; margin-bottom: 3px;">
+                                    <select onchange="this.previousElementSibling.value = this.value; this.selectedIndex = 0;" style="width: 100%; font-size: 0.8rem;">
+                                        <option value="">費用參考...</option>
+                                        <optgroup label="🍽️ 餐飲費用">
+                                            <option value="NT$ 50">NT$ 50 (便利商店)</option>
+                                            <option value="NT$ 150">NT$ 150 (速食/小吃)</option>
+                                            <option value="NT$ 300">NT$ 300 (一般餐廳)</option>
+                                            <option value="NT$ 600">NT$ 600 (中高級餐廳)</option>
+                                            <option value="NT$ 1,200">NT$ 1,200 (高級餐廳)</option>
+                                            <option value="NT$ 2,500">NT$ 2,500 (米其林餐廳)</option>
+                                        </optgroup>
+                                        <optgroup label="🎫 門票費用">
+                                            <option value="NT$ 0">NT$ 0 (免費景點)</option>
+                                            <option value="NT$ 100">NT$ 100 (小型景點)</option>
+                                            <option value="NT$ 300">NT$ 300 (博物館/寺廟)</option>
+                                            <option value="NT$ 600">NT$ 600 (主要景點)</option>
+                                            <option value="NT$ 1,200">NT$ 1,200 (主題樂園)</option>
+                                            <option value="NT$ 2,000">NT$ 2,000 (特殊體驗)</option>
+                                        </optgroup>
+                                        <optgroup label="🚗 交通費用">
+                                            <option value="NT$ 0">NT$ 0 (步行)</option>
+                                            <option value="NT$ 30">NT$ 30 (公車單程)</option>
+                                            <option value="NT$ 50">NT$ 50 (地鐵單程)</option>
+                                            <option value="NT$ 200">NT$ 200 (計程車短程)</option>
+                                            <option value="NT$ 500">NT$ 500 (計程車中程)</option>
+                                            <option value="NT$ 1,000">NT$ 1,000 (長程交通)</option>
+                                        </optgroup>
+                                        <optgroup label="🛍️ 購物費用">
+                                            <option value="NT$ 100">NT$ 100 (小紀念品)</option>
+                                            <option value="NT$ 300">NT$ 300 (伴手禮)</option>
+                                            <option value="NT$ 800">NT$ 800 (服飾配件)</option>
+                                            <option value="NT$ 1,500">NT$ 1,500 (精品小物)</option>
+                                            <option value="NT$ 3,000">NT$ 3,000 (高價商品)</option>
+                                        </optgroup>
+                                        <optgroup label="💆 休閒費用">
+                                            <option value="NT$ 200">NT$ 200 (咖啡廳)</option>
+                                            <option value="NT$ 800">NT$ 800 (溫泉泡湯)</option>
+                                            <option value="NT$ 1,500">NT$ 1,500 (SPA按摩)</option>
+                                            <option value="NT$ 2,500">NT$ 2,500 (高級SPA)</option>
+                                        </optgroup>
+                                    </select>
+                                </td>
+                                <td><button class="btn btn-danger" onclick="removeRow(this)" style="padding: 5px 8px; font-size: 0.8rem;">刪除</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button class="btn" onclick="addRow(2)" style="margin: 10px 0;">➕ 新增行程</button>
+                </div>
+            </div>
+
+            <!-- 費用統計 -->
+            <div class="section">
+                <h2>💰 旅程費用統計</h2>
+                <div class="summary-box">
+                    <h3>📊 預算 vs 實際花費</h3>
+                    <div class="expense-grid">
+                        <div class="expense-item">
+                            <div class="label">機票</div>
+                            <div class="amount" id="flightCost">NT$ 12,000</div>
+                        </div>
+                        <div class="expense-item">
+                            <div class="label">住宿</div>
+                            <div class="amount" id="accommodationCost">NT$ 8,000</div>
+                        </div>
+                        <div class="expense-item">
+                            <div class="label">交通</div>
+                            <div class="amount" id="transportCost">NT$ 4,000</div>
+                        </div>
+                        <div class="expense-item">
+                            <div class="label">餐飲</div>
+                            <div class="amount" id="foodCost">NT$ 4,500</div>
+                        </div>
+                        <div class="expense-item">
+                            <div class="label">購物</div>
+                            <div class="amount" id="shoppingCost">NT$ 2,500</div>
+                        </div>
+                        <div class="expense-item">
+                            <div class="label">其他</div>
+                            <div class="amount" id="otherCost">NT$ 1,250</div>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 20px; padding: 15px; background: white; border-radius: 8px;">
+                        <div style="font-size: 1.1rem; color: #666;">總計花費</div>
+                        <div style="font-size: 2rem; font-weight: 700; color: #2c3e50;" id="totalCost">NT$ 32,250</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 操作按鈕 -->
+            <div class="action-buttons">
+                <button class="btn btn-info" onclick="previewItinerary()">👁️ 預覽行程表</button>
+                <!-- <!-- <button class="btn btn-success" onclick="downloadExcel()">📊 下載 Excel</button> -->
+                <button class="btn btn-info"
+onclick="html2canvas(document.body,{scale:2}).then(c=>{let a=document.createElement('a');a.href=c.toDataURL();a.download='螢幕截圖.png';a.click();})">
+🖼️ 截圖 
+</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+                <!-- <button class="btn" onclick="saveData()">💾 儲存資料</button>
+                <button class="btn" onclick="loadData()">📂 載入資料</button> -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let dayCounter = 2;
+        
+        // 頁面載入時自動更新標題
+        window.addEventListener('load', function() {
+            updateAllDayHeaders();
+        });
+
+        // 各洲國家資料
+        const countryData = {
+            asia: [
+                '日本 Japan', '韓國 South Korea', '中國 China', '台灣 Taiwan', '香港 Hong Kong', '澳門 Macau',
+                '泰國 Thailand', '新加坡 Singapore', '馬來西亞 Malaysia', '印尼 Indonesia', '菲律賓 Philippines',
+                '越南 Vietnam', '柬埔寨 Cambodia', '寮國 Laos', '緬甸 Myanmar', '印度 India', '斯里蘭卡 Sri Lanka',
+                '尼泊爾 Nepal', '不丹 Bhutan', '孟加拉 Bangladesh', '巴基斯坦 Pakistan', '阿富汗 Afghanistan',
+                '伊朗 Iran', '土耳其 Turkey', '以色列 Israel', '約旦 Jordan', '阿聯酋 UAE', '卡達 Qatar',
+                '沙烏地阿拉伯 Saudi Arabia', '科威特 Kuwait', '巴林 Bahrain', '阿曼 Oman', '葉門 Yemen'
+            ],
+            europe: [
+                '英國 United Kingdom', '法國 France', '德國 Germany', '義大利 Italy', '西班牙 Spain', '葡萄牙 Portugal',
+                '荷蘭 Netherlands', '比利時 Belgium', '瑞士 Switzerland', '奧地利 Austria', '瑞典 Sweden', '挪威 Norway',
+                '丹麥 Denmark', '芬蘭 Finland', '冰島 Iceland', '愛爾蘭 Ireland', '波蘭 Poland', '捷克 Czech Republic',
+                '匈牙利 Hungary', '斯洛伐克 Slovakia', '斯洛維尼亞 Slovenia', '克羅埃西亞 Croatia', '塞爾維亞 Serbia',
+                '波士尼亞 Bosnia', '蒙特內哥羅 Montenegro', '阿爾巴尼亞 Albania', '馬其頓 Macedonia', '保加利亞 Bulgaria',
+                '羅馬尼亞 Romania', '摩爾多瓦 Moldova', '烏克蘭 Ukraine', '白俄羅斯 Belarus', '立陶宛 Lithuania',
+                '拉脫維亞 Latvia', '愛沙尼亞 Estonia', '俄羅斯 Russia', '希臘 Greece', '賽普勒斯 Cyprus', '馬爾他 Malta'
+            ],
+            northamerica: [
+                '美國 United States', '加拿大 Canada', '墨西哥 Mexico', '瓜地馬拉 Guatemala', '貝里斯 Belize',
+                '薩爾瓦多 El Salvador', '宏都拉斯 Honduras', '尼加拉瓜 Nicaragua', '哥斯大黎加 Costa Rica',
+                '巴拿馬 Panama', '古巴 Cuba', '牙買加 Jamaica', '海地 Haiti', '多明尼加 Dominican Republic',
+                '巴哈馬 Bahamas', '巴貝多 Barbados', '千里達 Trinidad and Tobago'
+            ],
+            southamerica: [
+                '巴西 Brazil', '阿根廷 Argentina', '智利 Chile', '秘魯 Peru', '哥倫比亞 Colombia', '委內瑞拉 Venezuela',
+                '厄瓜多 Ecuador', '玻利維亞 Bolivia', '巴拉圭 Paraguay', '烏拉圭 Uruguay', '蓋亞那 Guyana',
+                '蘇利南 Suriname', '法屬圭亞那 French Guiana'
+            ],
+            africa: [
+                '南非 South Africa', '埃及 Egypt', '摩洛哥 Morocco', '突尼西亞 Tunisia', '阿爾及利亞 Algeria',
+                '利比亞 Libya', '蘇丹 Sudan', '衣索比亞 Ethiopia', '肯亞 Kenya', '坦尚尼亞 Tanzania',
+                '烏干達 Uganda', '盧安達 Rwanda', '布隆迪 Burundi', '剛果 Congo', '安哥拉 Angola',
+                '尚比亞 Zambia', '辛巴威 Zimbabwe', '波札那 Botswana', '納米比亞 Namibia', '史瓦帝尼 Eswatini',
+                '賴索托 Lesotho', '馬達加斯加 Madagascar', '模里西斯 Mauritius', '塞席爾 Seychelles',
+                '奈及利亞 Nigeria', '迦納 Ghana', '象牙海岸 Ivory Coast', '塞內加爾 Senegal', '馬利 Mali',
+                '布吉納法索 Burkina Faso', '尼日 Niger', '查德 Chad', '喀麥隆 Cameroon', '中非 Central African Republic'
+            ],
+            oceania: [
+                '澳洲 Australia', '紐西蘭 New Zealand', '斐濟 Fiji', '巴布亞紐幾內亞 Papua New Guinea',
+                '萬那杜 Vanuatu', '索羅門群島 Solomon Islands', '新喀里多尼亞 New Caledonia', '法屬玻里尼西亞 French Polynesia',
+                '薩摩亞 Samoa', '東加 Tonga', '吉里巴斯 Kiribati', '吐瓦魯 Tuvalu', '諾魯 Nauru',
+                '帛琉 Palau', '馬紹爾群島 Marshall Islands', '密克羅尼西亞 Micronesia', '關島 Guam',
+                '美屬薩摩亞 American Samoa', '庫克群島 Cook Islands', '紐埃 Niue'
+            ],
+            antarctica: [
+                '南極洲 Antarctica (科學研究站)'
+            ]
+        };
+
+        function updateCountries() {
+            const continent = document.getElementById('continentSelect').value;
+            const countrySelect = document.getElementById('countrySelect');
+            
+            // 清空國家選項
+            countrySelect.innerHTML = '<option value="">請選擇國家...</option>';
+            
+            if (continent && countryData[continent]) {
+                countryData[continent].forEach(country => {
+                    const option = document.createElement('option');
+                    option.value = country;
+                    option.textContent = country;
+                    countrySelect.appendChild(option);
+                });
+            }
+        }
+
+        function updateDestination() {
+            const country = document.getElementById('countrySelect').value;
+            if (country) {
+                document.getElementById('destination').value = country;
+            }
+        }
+
+        function updateDuration() {
+            const duration = document.getElementById('durationSelect').value;
+            if (duration) {
+                document.getElementById('duration').value = duration;
+                
+                // 根據選擇的天數自動調整行程表
+                const days = parseInt(duration.match(/\d+/)[0]); // 提取數字
+                adjustItineraryDays(days);
+            }
+        }
+
+        function getTotalDaysFromDuration() {
+            const durationText = document.getElementById('duration').value || document.getElementById('durationSelect').value;
+            if (durationText) {
+                const match = durationText.match(/(\d+)天/);
+                return match ? parseInt(match[1]) : 1;
+            }
+            return 1;
+        }
+
+        function adjustItineraryDays(targetDays) {
+            // 調整到目標天數
+            while (dayCounter < targetDays) {
+                addDay();
+            }
+            while (dayCounter > targetDays && dayCounter > 1) {
+                removeDay();
+            }
+            
+            // 更新所有天數的標題
+            updateAllDayHeaders();
+        }
+
+        function updateAllDayHeaders() {
+            const totalDays = getTotalDaysFromDuration();
+            const dayHeaders = document.querySelectorAll('.day-header');
+            const savedTitles = JSON.parse(localStorage.getItem('dayTitles') || '{}');
+            
+            dayHeaders.forEach((header, index) => {
+                const dayNum = index + 1;
+                if (dayNum === 1) {
+                    header.innerHTML = `✈️ Day 1: 出發啟程，抵達新世界`;
+                } else if (dayNum === totalDays && totalDays > 1) {
+                    header.innerHTML = `✈️ Day ${dayNum}: 返家/回國`;
+                } else {
+                    // 中間天數可自由安排
+                    const savedTitle = savedTitles[dayNum] || '';
+                    header.innerHTML = `🗓️ Day ${dayNum}: <input type="text" placeholder="自由安排主題..." value="${savedTitle}" style="background: transparent; border: none; color: #8b4513; font-weight: 700; font-size: 1.2rem; width: 300px; outline: none;" onchange="updateDayTitle(${dayNum}, this.value)">`;
+                }
+            });
+            
+            // 當選擇5天4夜時，自動調整到5天並更新標題
+            if (totalDays === 5) {
+                adjustItineraryDays(5);
+            }
+        }
+
+        function updateDayTitle(dayNum, title) {
+            // 儲存用戶輸入的標題，以便在重新整理時保持
+            const dayTitles = JSON.parse(localStorage.getItem('dayTitles') || '{}');
+            dayTitles[dayNum] = title;
+            localStorage.setItem('dayTitles', JSON.stringify(dayTitles));
+        }
+
+        function updateBudget() {
+            const budget = document.getElementById('budgetSelect').value;
+            if (budget) {
+                document.getElementById('budget').value = budget;
+            }
+        }
+
+        function addDay() {
+            dayCounter++;
+            const container = document.getElementById('itineraryContainer');
+            
+            const dayHeader = document.createElement('div');
+            dayHeader.className = 'day-header';
+            
+            // 判斷是否為最後一天（返家日）
+            const totalDays = getTotalDaysFromDuration();
+            const savedTitles = JSON.parse(localStorage.getItem('dayTitles') || '{}');
+            
+            if (dayCounter === 1) {
+                dayHeader.innerHTML = `✈️ Day ${dayCounter}: 出發啟程，抵達新世界`;
+            } else if (dayCounter === totalDays && totalDays > 1) {
+                dayHeader.innerHTML = `✈️ Day ${dayCounter}: 返家/回國`;
+            } else {
+                // 中間天數可自由安排
+                const savedTitle = savedTitles[dayCounter] || '';
+                dayHeader.innerHTML = `🗓️ Day ${dayCounter}: <input type="text" placeholder="自由安排主題..." value="${savedTitle}" style="background: transparent; border: none; color: #8b4513; font-weight: 700; font-size: 1.2rem; width: 300px; outline: none;" onchange="updateDayTitle(${dayCounter}, this.value)">`;
+            }
+            
+            const table = document.createElement('table');
+            table.className = 'itinerary-table';
+            table.setAttribute('data-day', dayCounter);
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th style="width: 12%;">時間<br><small>備註</small></th>
+                        <th style="width: 25%;">活動項目</th>
+                        <th style="width: 20%;">交通方式</th>
+                        <th style="width: 15%;">所需時間</th>
+                        <th style="width: 18%;">花費金額</th>
+                        <th style="width: 5%;">🗑️</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <input type="time" value="09:00" style="width: 100%; margin-bottom: 5px;">
+                            <textarea placeholder="備註" style="width: 100%; height: 40px; font-size: 0.8rem;"></textarea>
+                        </td>
+                        <td>
+                            <input type="text" placeholder="活動內容" value="${dayCounter === getTotalDaysFromDuration() && getTotalDaysFromDuration() > 1 ? '整理行李，準備返家' : ''}" style="width: 100%; margin-bottom: 3px;">
+                            <select onchange="this.previousElementSibling.value = this.value; this.selectedIndex = 0;" style="width: 100%; font-size: 0.8rem;">
+                                <option value="">活動參考選項...</option>
+                                <optgroup label="🏨 住宿相關">
+                                    <option value="飯店 Check-in">飯店 Check-in</option>
+                                    <option value="飯店 Check-out">飯店 Check-out</option>
+                                    <option value="行李寄放">行李寄放</option>
+                                    <option value="房間休息">房間休息</option>
+                                </optgroup>
+                                <optgroup label="🍽️ 餐飲美食">
+                                    <option value="早餐">早餐</option>
+                                    <option value="午餐">午餐</option>
+                                    <option value="晚餐">晚餐</option>
+                                    <option value="下午茶">下午茶</option>
+                                    <option value="宵夜">宵夜</option>
+                                    <option value="當地特色料理">當地特色料理</option>
+                                    <option value="米其林餐廳">米其林餐廳</option>
+                                    <option value="街頭小吃">街頭小吃</option>
+                                    <option value="夜市美食">夜市美食</option>
+                                </optgroup>
+                                <optgroup label="🏛️ 觀光景點">
+                                    <option value="博物館參觀">博物館參觀</option>
+                                    <option value="古蹟巡禮">古蹟巡禮</option>
+                                    <option value="寺廟參拜">寺廟參拜</option>
+                                    <option value="城堡參觀">城堡參觀</option>
+                                    <option value="宮殿遊覽">宮殿遊覽</option>
+                                    <option value="展望台觀景">展望台觀景</option>
+                                    <option value="燈塔參觀">燈塔參觀</option>
+                                </optgroup>
+                                <optgroup label="🌿 自然景觀">
+                                    <option value="國家公園">國家公園</option>
+                                    <option value="登山健行">登山健行</option>
+                                    <option value="海灘戲水">海灘戲水</option>
+                                    <option value="湖泊遊覽">湖泊遊覽</option>
+                                    <option value="瀑布觀賞">瀑布觀賞</option>
+                                    <option value="溫泉泡湯">溫泉泡湯</option>
+                                    <option value="賞花踏青">賞花踏青</option>
+                                    <option value="動物園">動物園</option>
+                                </optgroup>
+                                <optgroup label="🎭 娛樂活動">
+                                    <option value="主題樂園">主題樂園</option>
+                                    <option value="遊樂園">遊樂園</option>
+                                    <option value="水族館">水族館</option>
+                                    <option value="電影院">電影院</option>
+                                    <option value="劇院表演">劇院表演</option>
+                                    <option value="音樂會">音樂會</option>
+                                    <option value="夜生活">夜生活</option>
+                                    <option value="酒吧">酒吧</option>
+                                </optgroup>
+                                <optgroup label="🛍️ 購物血拼">
+                                    <option value="百貨公司">百貨公司</option>
+                                    <option value="購物中心">購物中心</option>
+                                    <option value="傳統市場">傳統市場</option>
+                                    <option value="跳蚤市場">跳蚤市場</option>
+                                    <option value="免稅店">免稅店</option>
+                                    <option value="伴手禮採購">伴手禮採購</option>
+                                    <option value="精品店">精品店</option>
+                                </optgroup>
+                                <optgroup label="🚗 交通移動">
+                                    <option value="機場報到">機場報到</option>
+                                    <option value="登機">登機</option>
+                                    <option value="抵達機場">抵達機場</option>
+                                    <option value="入境通關">入境通關</option>
+                                    <option value="出境通關">出境通關</option>
+                                    <option value="搭乘交通工具">搭乘交通工具</option>
+                                    <option value="步行移動">步行移動</option>
+                                </optgroup>
+                                <optgroup label="💆 休閒放鬆">
+                                    <option value="SPA按摩">SPA按摩</option>
+                                    <option value="美容護理">美容護理</option>
+                                    <option value="咖啡廳休息">咖啡廳休息</option>
+                                    <option value="公園散步">公園散步</option>
+                                    <option value="海邊漫步">海邊漫步</option>
+                                    <option value="瑜伽冥想">瑜伽冥想</option>
+                                </optgroup>
+                                <optgroup label="📚 文化體驗">
+                                    <option value="文化課程">文化課程</option>
+                                    <option value="手作體驗">手作體驗</option>
+                                    <option value="料理教學">料理教學</option>
+                                    <option value="語言交流">語言交流</option>
+                                    <option value="當地導覽">當地導覽</option>
+                                    <option value="民俗表演">民俗表演</option>
+                                </optgroup>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="text" placeholder="交通方式" value="" style="width: 100%; margin-bottom: 3px;">
+                            <select onchange="this.previousElementSibling.value = this.value; this.selectedIndex = 0;" style="width: 100%; font-size: 0.8rem;">
+                                <option value="">參考選項...</option>
+                                <option value="🚶 步行">🚶 步行</option>
+                                <option value="🚗 自駕">🚗 自駕</option>
+                                <option value="🚕 計程車">🚕 計程車</option>
+                                <option value="🚌 公車">🚌 公車</option>
+                                <option value="🚇 地鐵">🚇 地鐵</option>
+                                <option value="🚄 高鐵">🚄 高鐵</option>
+                                <option value="🚆 火車">🚆 火車</option>
+                                <option value="✈️ 飛機">✈️ 飛機</option>
+                                <option value="🚢 船舶">🚢 船舶</option>
+                                <option value="🚲 腳踏車">🚲 腳踏車</option>
+                                <option value="🛵 機車">🛵 機車</option>
+                                <option value="🚠 纜車">🚠 纜車</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select>
+                                <option value="15分鐘">15分鐘</option>
+                                <option value="30分鐘">30分鐘</option>
+                                <option value="45分鐘">45分鐘</option>
+                                <option value="1小時" selected>1小時</option>
+                                <option value="1.5小時">1.5小時</option>
+                                <option value="2小時">2小時</option>
+                                <option value="2.5小時">2.5小時</option>
+                                <option value="3小時">3小時</option>
+                                <option value="4小時">4小時</option>
+                                <option value="5小時">5小時</option>
+                                <option value="6小時">6小時</option>
+                                <option value="半天">半天</option>
+                                <option value="全天">全天</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="text" placeholder="費用" value="" style="width: 100%; margin-bottom: 3px;">
+                            <select onchange="this.previousElementSibling.value = this.value; this.selectedIndex = 0;" style="width: 100%; font-size: 0.8rem;">
+                                <option value="">費用參考...</option>
+                                <optgroup label="🍽️ 餐飲費用">
+                                    <option value="NT$ 50">NT$ 50 (便利商店)</option>
+                                    <option value="NT$ 150">NT$ 150 (速食/小吃)</option>
+                                    <option value="NT$ 300">NT$ 300 (一般餐廳)</option>
+                                    <option value="NT$ 600">NT$ 600 (中高級餐廳)</option>
+                                    <option value="NT$ 1,200">NT$ 1,200 (高級餐廳)</option>
+                                    <option value="NT$ 2,500">NT$ 2,500 (米其林餐廳)</option>
+                                </optgroup>
+                                <optgroup label="🎫 門票費用">
+                                    <option value="NT$ 0">NT$ 0 (免費景點)</option>
+                                    <option value="NT$ 100">NT$ 100 (小型景點)</option>
+                                    <option value="NT$ 300">NT$ 300 (博物館/寺廟)</option>
+                                    <option value="NT$ 600">NT$ 600 (主要景點)</option>
+                                    <option value="NT$ 1,200">NT$ 1,200 (主題樂園)</option>
+                                    <option value="NT$ 2,000">NT$ 2,000 (特殊體驗)</option>
+                                </optgroup>
+                                <optgroup label="🚗 交通費用">
+                                    <option value="NT$ 0">NT$ 0 (步行)</option>
+                                    <option value="NT$ 30">NT$ 30 (公車單程)</option>
+                                    <option value="NT$ 50">NT$ 50 (地鐵單程)</option>
+                                    <option value="NT$ 200">NT$ 200 (計程車短程)</option>
+                                    <option value="NT$ 500">NT$ 500 (計程車中程)</option>
+                                    <option value="NT$ 1,000">NT$ 1,000 (長程交通)</option>
+                                </optgroup>
+                                <optgroup label="🛍️ 購物費用">
+                                    <option value="NT$ 100">NT$ 100 (小紀念品)</option>
+                                    <option value="NT$ 300">NT$ 300 (伴手禮)</option>
+                                    <option value="NT$ 800">NT$ 800 (服飾配件)</option>
+                                    <option value="NT$ 1,500">NT$ 1,500 (精品小物)</option>
+                                    <option value="NT$ 3,000">NT$ 3,000 (高價商品)</option>
+                                </optgroup>
+                                <optgroup label="💆 休閒費用">
+                                    <option value="NT$ 200">NT$ 200 (咖啡廳)</option>
+                                    <option value="NT$ 800">NT$ 800 (溫泉泡湯)</option>
+                                    <option value="NT$ 1,500">NT$ 1,500 (SPA按摩)</option>
+                                    <option value="NT$ 2,500">NT$ 2,500 (高級SPA)</option>
+                                </optgroup>
+                            </select>
+                        </td>
+                        <td><button class="btn btn-danger" onclick="removeRow(this)" style="padding: 5px 8px; font-size: 0.8rem;">刪除</button></td>
+                    </tr>
+                </tbody>
+            `;
+            
+            const addButton = document.createElement('button');
+            addButton.className = 'btn';
+            addButton.style.margin = '10px 0';
+            addButton.innerHTML = '➕ 新增行程';
+            addButton.onclick = () => addRow(dayCounter);
+            
+            container.appendChild(dayHeader);
+            container.appendChild(table);
+            container.appendChild(addButton);
+            
+            document.getElementById('dayCount').textContent = dayCounter;
+        }
+
+        function removeDay() {
+            if (dayCounter <= 1) {
+                alert('至少需要保留一天行程！');
+                return;
+            }
+            
+            const container = document.getElementById('itineraryContainer');
+            const elements = container.children;
+            
+            // 移除最後一天的三個元素（header, table, button）
+            for (let i = 0; i < 3; i++) {
+                if (elements.length > 3) { // 確保不會刪除第一天
+                    container.removeChild(elements[elements.length - 1]);
+                }
+            }
+            
+            dayCounter--;
+            document.getElementById('dayCount').textContent = dayCounter;
+        }
+
+        function addRow(day) {
+            const table = document.querySelector(`table[data-day="${day}"] tbody`);
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>
+                    <input type="time" value="" style="width: 100%; margin-bottom: 5px;">
+                    <textarea placeholder="備註" style="width: 100%; height: 40px; font-size: 0.8rem;"></textarea>
+                </td>
+                <td>
+                    <input type="text" placeholder="活動內容" value="" style="width: 100%; margin-bottom: 3px;">
+                    <select onchange="this.previousElementSibling.value = this.value; this.selectedIndex = 0;" style="width: 100%; font-size: 0.8rem;">
+                        <option value="">活動參考選項...</option>
+                        <optgroup label="🏨 住宿相關">
+                            <option value="飯店 Check-in">飯店 Check-in</option>
+                            <option value="飯店 Check-out">飯店 Check-out</option>
+                            <option value="行李寄放">行李寄放</option>
+                            <option value="房間休息">房間休息</option>
+                        </optgroup>
+                        <optgroup label="🍽️ 餐飲美食">
+                            <option value="早餐">早餐</option>
+                            <option value="午餐">午餐</option>
+                            <option value="晚餐">晚餐</option>
+                            <option value="下午茶">下午茶</option>
+                            <option value="宵夜">宵夜</option>
+                            <option value="當地特色料理">當地特色料理</option>
+                            <option value="米其林餐廳">米其林餐廳</option>
+                            <option value="街頭小吃">街頭小吃</option>
+                            <option value="夜市美食">夜市美食</option>
+                        </optgroup>
+                        <optgroup label="🏛️ 觀光景點">
+                            <option value="博物館參觀">博物館參觀</option>
+                            <option value="古蹟巡禮">古蹟巡禮</option>
+                            <option value="寺廟參拜">寺廟參拜</option>
+                            <option value="城堡參觀">城堡參觀</option>
+                            <option value="宮殿遊覽">宮殿遊覽</option>
+                            <option value="展望台觀景">展望台觀景</option>
+                            <option value="燈塔參觀">燈塔參觀</option>
+                        </optgroup>
+                        <optgroup label="🌿 自然景觀">
+                            <option value="國家公園">國家公園</option>
+                            <option value="登山健行">登山健行</option>
+                            <option value="海灘戲水">海灘戲水</option>
+                            <option value="湖泊遊覽">湖泊遊覽</option>
+                            <option value="瀑布觀賞">瀑布觀賞</option>
+                            <option value="溫泉泡湯">溫泉泡湯</option>
+                            <option value="賞花踏青">賞花踏青</option>
+                            <option value="動物園">動物園</option>
+                        </optgroup>
+                        <optgroup label="🎭 娛樂活動">
+                            <option value="主題樂園">主題樂園</option>
+                            <option value="遊樂園">遊樂園</option>
+                            <option value="水族館">水族館</option>
+                            <option value="電影院">電影院</option>
+                            <option value="劇院表演">劇院表演</option>
+                            <option value="音樂會">音樂會</option>
+                            <option value="夜生活">夜生活</option>
+                            <option value="酒吧">酒吧</option>
+                        </optgroup>
+                        <optgroup label="🛍️ 購物血拼">
+                            <option value="百貨公司">百貨公司</option>
+                            <option value="購物中心">購物中心</option>
+                            <option value="傳統市場">傳統市場</option>
+                            <option value="跳蚤市場">跳蚤市場</option>
+                            <option value="免稅店">免稅店</option>
+                            <option value="伴手禮採購">伴手禮採購</option>
+                            <option value="精品店">精品店</option>
+                        </optgroup>
+                        <optgroup label="🚗 交通移動">
+                            <option value="機場報到">機場報到</option>
+                            <option value="登機">登機</option>
+                            <option value="抵達機場">抵達機場</option>
+                            <option value="入境通關">入境通關</option>
+                            <option value="出境通關">出境通關</option>
+                            <option value="搭乘交通工具">搭乘交通工具</option>
+                            <option value="步行移動">步行移動</option>
+                        </optgroup>
+                        <optgroup label="💆 休閒放鬆">
+                            <option value="SPA按摩">SPA按摩</option>
+                            <option value="美容護理">美容護理</option>
+                            <option value="咖啡廳休息">咖啡廳休息</option>
+                            <option value="公園散步">公園散步</option>
+                            <option value="海邊漫步">海邊漫步</option>
+                            <option value="瑜伽冥想">瑜伽冥想</option>
+                        </optgroup>
+                        <optgroup label="📚 文化體驗">
+                            <option value="文化課程">文化課程</option>
+                            <option value="手作體驗">手作體驗</option>
+                            <option value="料理教學">料理教學</option>
+                            <option value="語言交流">語言交流</option>
+                            <option value="當地導覽">當地導覽</option>
+                            <option value="民俗表演">民俗表演</option>
+                        </optgroup>
+                    </select>
+                </td>
+                <td>
+                    <input type="text" placeholder="交通方式" value="" style="width: 100%; margin-bottom: 3px;">
+                    <select onchange="this.previousElementSibling.value = this.value; this.selectedIndex = 0;" style="width: 100%; font-size: 0.8rem;">
+                        <option value="">參考選項...</option>
+                        <optgroup label="🚶 步行與微型交通">
+                            <option value="🚶 步行">🚶 步行</option>
+                            <option value="🚲 腳踏車">🚲 腳踏車</option>
+                            <option value="🚲 公共自行車">🚲 公共自行車 (Bike Share)</option>
+                            <option value="⚡ 電動腳踏車">⚡ 電動腳踏車 (E-Bike)</option>
+                            <option value="🛴 電動滑板車">🛴 電動滑板車 (E-Scooter)</option>
+                            <option value="🛵 機車">🛵 機車</option>
+                            <option value="🛵 電動機車">🛵 電動機車</option>
+                        </optgroup>
+                        <optgroup label="🚗 陸路交通">
+                            <option value="🚗 自駕">🚗 自駕</option>
+                            <option value="🚕 計程車">🚕 計程車</option>
+                            <option value="🚐 共乘">🚐 共乘 (Uber/Lyft)</option>
+                            <option value="🚌 公車">🚌 公車</option>
+                            <option value="🚌 長途巴士">🚌 長途巴士</option>
+                            <option value="🚐 小巴">🚐 小巴</option>
+                            <option value="🚛 貨車">🚛 貨車</option>
+                        </optgroup>
+                        <optgroup label="🚄 軌道交通">
+                            <option value="🚄 高速鐵路">🚄 高速鐵路 (HSR)</option>
+                            <option value="🚆 城際鐵路">🚆 城際鐵路</option>
+                            <option value="🚇 地鐵/捷運">🚇 地鐵/捷運 (Metro)</option>
+                            <option value="🚊 市郊鐵路">🚊 市郊鐵路 (Commuter Rail)</option>
+                            <option value="🚋 輕軌">🚋 輕軌 (Light Rail)</option>
+                            <option value="🚋 有軌電車">🚋 有軌電車 (Tram)</option>
+                            <option value="🚝 單軌系統">🚝 單軌系統 (Monorail)</option>
+                            <option value="🚞 登山鐵路">🚞 登山鐵路</option>
+                        </optgroup>
+                        <optgroup label="✈️ 航空交通">
+                            <option value="✈️ 民航班機">✈️ 民航班機</option>
+                            <option value="✈️ 廉價航空">✈️ 廉價航空 (LCC)</option>
+                            <option value="✈️ 包機">✈️ 包機 (Charter)</option>
+                            <option value="🚁 直升機">🚁 直升機</option>
+                            <option value="🛩️ 私人飛機">🛩️ 私人飛機</option>
+                            <option value="🛩️ 水上飛機">🛩️ 水上飛機</option>
+                        </optgroup>
+                        <optgroup label="🚢 水上交通">
+                            <option value="⛴️ 渡輪">⛴️ 渡輪 (Ferry)</option>
+                            <option value="🚤 高速客船">🚤 高速客船</option>
+                            <option value="🚤 水上計程車">🚤 水上計程車</option>
+                            <option value="🛳️ 郵輪">🛳️ 郵輪 (Cruise)</option>
+                            <option value="🚢 貨船">🚢 貨船</option>
+                            <option value="🛶 內河航運">🛶 內河航運</option>
+                        </optgroup>
+                        <optgroup label="🚠 特殊交通">
+                            <option value="🚠 纜車">🚠 纜車 (Cable Car)</option>
+                            <option value="🚡 空中索道">🚡 空中索道 (Gondola)</option>
+                            <option value="🎿 滑雪纜車">🎿 滑雪纜車 (Ski Lift)</option>
+                            <option value="🏔️ 登山纜索">🏔️ 登山纜索</option>
+                            <option value="🏜️ 沙漠越野車">🏜️ 沙漠越野車</option>
+                            <option value="❄️ 雪上交通">❄️ 雪上交通</option>
+                        </optgroup>
+                    </select>
+                </td>
+                <td>
+                    <select>
+                        <option value="15分鐘">15分鐘</option>
+                        <option value="30分鐘">30分鐘</option>
+                        <option value="45分鐘">45分鐘</option>
+                        <option value="1小時" selected>1小時</option>
+                        <option value="1.5小時">1.5小時</option>
+                        <option value="2小時">2小時</option>
+                        <option value="2.5小時">2.5小時</option>
+                        <option value="3小時">3小時</option>
+                        <option value="4小時">4小時</option>
+                        <option value="5小時">5小時</option>
+                        <option value="6小時">6小時</option>
+                        <option value="半天">半天</option>
+                        <option value="全天">全天</option>
+                    </select>
+                </td>
+                <td>
+                    <input type="text" placeholder="費用" value="" style="width: 100%; margin-bottom: 3px;">
+                    <select onchange="this.previousElementSibling.value = this.value; this.selectedIndex = 0;" style="width: 100%; font-size: 0.8rem;">
+                        <option value="">費用參考...</option>
+                        <optgroup label="🍽️ 餐飲費用">
+                            <option value="NT$ 50">NT$ 50 (便利商店)</option>
+                            <option value="NT$ 150">NT$ 150 (速食/小吃)</option>
+                            <option value="NT$ 300">NT$ 300 (一般餐廳)</option>
+                            <option value="NT$ 600">NT$ 600 (中高級餐廳)</option>
+                            <option value="NT$ 1,200">NT$ 1,200 (高級餐廳)</option>
+                            <option value="NT$ 2,500">NT$ 2,500 (米其林餐廳)</option>
+                        </optgroup>
+                        <optgroup label="🎫 門票費用">
+                            <option value="NT$ 0">NT$ 0 (免費景點)</option>
+                            <option value="NT$ 100">NT$ 100 (小型景點)</option>
+                            <option value="NT$ 300">NT$ 300 (博物館/寺廟)</option>
+                            <option value="NT$ 600">NT$ 600 (主要景點)</option>
+                            <option value="NT$ 1,200">NT$ 1,200 (主題樂園)</option>
+                            <option value="NT$ 2,000">NT$ 2,000 (特殊體驗)</option>
+                        </optgroup>
+                        <optgroup label="🚗 交通費用">
+                            <option value="NT$ 0">NT$ 0 (步行)</option>
+                            <option value="NT$ 30">NT$ 30 (公車單程)</option>
+                            <option value="NT$ 50">NT$ 50 (地鐵單程)</option>
+                            <option value="NT$ 200">NT$ 200 (計程車短程)</option>
+                            <option value="NT$ 500">NT$ 500 (計程車中程)</option>
+                            <option value="NT$ 1,000">NT$ 1,000 (長程交通)</option>
+                        </optgroup>
+                        <optgroup label="🛍️ 購物費用">
+                            <option value="NT$ 100">NT$ 100 (小紀念品)</option>
+                            <option value="NT$ 300">NT$ 300 (伴手禮)</option>
+                            <option value="NT$ 800">NT$ 800 (服飾配件)</option>
+                            <option value="NT$ 1,500">NT$ 1,500 (精品小物)</option>
+                            <option value="NT$ 3,000">NT$ 3,000 (高價商品)</option>
+                        </optgroup>
+                        <optgroup label="💆 休閒費用">
+                            <option value="NT$ 200">NT$ 200 (咖啡廳)</option>
+                            <option value="NT$ 800">NT$ 800 (溫泉泡湯)</option>
+                            <option value="NT$ 1,500">NT$ 1,500 (SPA按摩)</option>
+                            <option value="NT$ 2,500">NT$ 2,500 (高級SPA)</option>
+                        </optgroup>
+                    </select>
+                </td>
+                <td><button class="btn btn-danger" onclick="removeRow(this)" style="padding: 5px 8px; font-size: 0.8rem;">刪除</button></td>
+            `;
+            table.appendChild(newRow);
+        }
+
+        function removeRow(button) {
+            const row = button.closest('tr');
+            const tbody = row.closest('tbody');
+            
+            if (tbody.children.length <= 1) {
+                alert('每天至少需要保留一個行程！');
+                return;
+            }
+            
+            row.remove();
+        }
+
+        function previewItinerary() {
+            const destination = document.getElementById('destination').value;
+            const duration = document.getElementById('duration').value;
+            
+            let preview = `🌍 ${destination} ${duration} 旅遊行程表\n\n`;
+            preview += `📋 行前準備：\n`;
+            preview += `• 預算：${document.getElementById('budget').value}\n`;
+            preview += `• 機票：${document.getElementById('flight').value}\n`;
+            preview += `• 住宿：${document.getElementById('accommodation').value}\n\n`;
+            
+            const tables = document.querySelectorAll('.itinerary-table');
+            tables.forEach((table, index) => {
+                const dayHeader = table.previousElementSibling;
+                preview += `${dayHeader.textContent}\n`;
+                
+                const rows = table.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll('input, textarea');
+                    const time = cells[0].value;
+                    const activity = cells[1].value;
+                    const transport = cells[2].value;
+                    const duration = cells[3].value;
+                    const cost = cells[4].value;
+                    
+                    if (activity) {
+                        preview += `${time} - ${activity} (${transport}, ${duration}, ${cost})\n`;
+                    }
+                });
+                preview += '\n';
+            });
+            
+            alert(preview);
+        }
+
+        function downloadExcel() {
+            // 收集所有資料
+            const data = collectAllData();
+            
+            // 建立 CSV 內容
+            let csvContent = '\uFEFF'; // UTF-8 BOM for Excel
+            csvContent += '旅遊行程規劃表\n\n';
+            
+            // 行前準備
+            csvContent += '行前準備與規劃\n';
+            csvContent += `目的地,${data.preparation.destination}\n`;
+            csvContent += `旅遊天數,${data.preparation.duration}\n`;
+            csvContent += `預計總預算,${data.preparation.budget}\n`;
+            csvContent += `機票,${data.preparation.flight}\n`;
+            csvContent += `住宿,${data.preparation.accommodation}\n`;
+            csvContent += `必要文件,${data.preparation.documents}\n`;
+            csvContent += `網路,${data.preparation.internet}\n`;
+            csvContent += `交通票券,${data.preparation.transport}\n`;
+            csvContent += `外幣,${data.preparation.currency}\n`;
+            csvContent += `旅遊保險,${data.preparation.insurance}\n\n`;
+            
+            // 每日行程
+            data.itinerary.forEach((day, index) => {
+                csvContent += `Day ${index + 1} 行程\n`;
+                csvContent += '時間,活動項目,交通方式,所需時間,花費金額,備註\n';
+                
+                day.activities.forEach(activity => {
+                    csvContent += `${activity.time},${activity.activity},${activity.transport},${activity.duration},${activity.cost},"${activity.notes}"\n`;
+                });
+                csvContent += '\n';
+            });
+            
+            // 下載檔案
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `旅遊行程表_${data.preparation.destination}_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function downloadPDF() {
+            // 簡化版 PDF 下載（實際上是 HTML 格式）
+            const data = collectAllData();
+            
+            let htmlContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>旅遊行程表</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; }
+                        h1 { color: #2c3e50; text-align: center; }
+                        h2 { color: #34495e; border-bottom: 2px solid #3498db; padding-bottom: 5px; }
+                        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                        .prep-info { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0; }
+                    </style>
+                </head>
+                <body>
+                    <h1>🌍 ${data.preparation.destination} 旅遊行程表</h1>
+                    
+                    <h2>📋 行前準備與規劃</h2>
+                    <div class="prep-info">
+                        <p><strong>目的地：</strong>${data.preparation.destination}</p>
+                        <p><strong>旅遊天數：</strong>${data.preparation.duration}</p>
+                        <p><strong>預計總預算：</strong>${data.preparation.budget}</p>
+                        <p><strong>機票：</strong>${data.preparation.flight}</p>
+                        <p><strong>住宿：</strong>${data.preparation.accommodation}</p>
+                        <p><strong>必要文件：</strong>${data.preparation.documents}</p>
+                        <p><strong>網路：</strong>${data.preparation.internet}</p>
+                        <p><strong>交通票券：</strong>${data.preparation.transport}</p>
+                        <p><strong>外幣：</strong>${data.preparation.currency}</p>
+                        <p><strong>旅遊保險：</strong>${data.preparation.insurance}</p>
+                    </div>
+            `;
+            
+            data.itinerary.forEach((day, index) => {
+                htmlContent += `
+                    <h2>📅 Day ${index + 1}</h2>
+                    <table>
+                        <tr>
+                            <th style="width: 10%;">時間</th>
+                            <th style="width: 15%;">活動項目</th>
+                            <th style="width: 25%;">交通方式</th>
+                            <th style="width: 25%;">所需時間</th>
+                            <th style="width: 25%;">花費金額</th>
+                            <th style="width: 20%;">備註</th>
+                        </tr>
+                `;
+                
+                day.activities.forEach(activity => {
+                    htmlContent += `
+                        <tr>
+                            <td>${activity.time}</td>
+                            <td>${activity.activity}</td>
+                            <td>${activity.transport}</td>
+                            <td>${activity.duration}</td>
+                            <td>${activity.cost}</td>
+                            <td>${activity.notes}</td>
+                        </tr>
+                    `;
+                });
+                
+                htmlContent += '</table>';
+            });
+            
+            htmlContent += '</body></html>';
+            
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `旅遊行程表_${data.preparation.destination}_${new Date().toISOString().split('T')[0]}.html`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function collectAllData() {
+            const preparation = {
+                destination: document.getElementById('destination').value,
+                duration: document.getElementById('duration').value,
+                budget: document.getElementById('budget').value,
+                flight: document.getElementById('flight').value,
+                accommodation: document.getElementById('accommodation').value,
+                meals: document.getElementById('meals').value,
+                documents: document.getElementById('documents').value,
+                internet: document.getElementById('internet').value,
+                transport: document.getElementById('transport').value,
+                currency: document.getElementById('currency').value,
+                insurance: document.getElementById('insurance').value
+            };
+            
+            const itinerary = [];
+            const tables = document.querySelectorAll('.itinerary-table');
+            
+            tables.forEach(table => {
+                const day = { activities: [] };
+                const rows = table.querySelectorAll('tbody tr');
+                
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll('input, textarea');
+                    const activity = {
+                        time: cells[0].value,
+                        activity: cells[1].value,
+                        transport: cells[2].value,
+                        duration: cells[3].value,
+                        cost: cells[4].value,
+                        notes: cells[5].value
+                    };
+                    
+                    if (activity.activity) {
+                        day.activities.push(activity);
+                    }
+                });
+                
+                if (day.activities.length > 0) {
+                    itinerary.push(day);
+                }
+            });
+            
+            return { preparation, itinerary };
+        }
+
+        function saveData() {
+            const data = collectAllData();
+            const jsonData = JSON.stringify(data, null, 2);
+            
+            const blob = new Blob([jsonData], { type: 'application/json' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `旅遊行程資料_${data.preparation.destination}_${new Date().toISOString().split('T')[0]}.json`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function loadData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            loadDataIntoForm(data);
+                            alert('資料載入成功！');
+                        } catch (error) {
+                            alert('檔案格式錯誤，請選擇正確的 JSON 檔案。');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            
+            input.click();
+        }
+
+        function loadDataIntoForm(data) {
+            // 載入行前準備資料
+            document.getElementById('destination').value = data.preparation.destination || '';
+            document.getElementById('duration').value = data.preparation.duration || '';
+            document.getElementById('budget').value = data.preparation.budget || '';
+            document.getElementById('flight').value = data.preparation.flight || '';
+            document.getElementById('accommodation').value = data.preparation.accommodation || '';
+            document.getElementById('meals').value = data.preparation.meals || '';
+            document.getElementById('documents').value = data.preparation.documents || '';
+            document.getElementById('internet').value = data.preparation.internet || '';
+            document.getElementById('transport').value = data.preparation.transport || '';
+            document.getElementById('currency').value = data.preparation.currency || '';
+            document.getElementById('insurance').value = data.preparation.insurance || '';
+            
+            // 清除現有行程並重新建立
+            const container = document.getElementById('itineraryContainer');
+            container.innerHTML = '';
+            dayCounter = 0;
+            
+            data.itinerary.forEach((day, dayIndex) => {
+                addDay();
+                const table = document.querySelector(`table[data-day="${dayCounter}"] tbody`);
+                table.innerHTML = '';
+                
+                day.activities.forEach(activity => {
+                    const newRow = document.createElement('tr');
+                    newRow.innerHTML = `
+                        <td><input type="time" value="${activity.time}"></td>
+                        <td><input type="text" placeholder="活動內容" value="${activity.activity}"></td>
+                        <td>
+                            <select>
+                                <option value="-" ${activity.transport === '-' ? 'selected' : ''}>-</option>
+                                <option value="🚶 步行" ${activity.transport === '🚶 步行' ? 'selected' : ''}>🚶 步行 (免費)</option>
+                                <option value="🚗 自駕" ${activity.transport === '🚗 自駕' ? 'selected' : ''}>🚗 自駕 (油費+停車費)</option>
+                                <option value="🚕 計程車" ${activity.transport === '🚕 計程車' ? 'selected' : ''}>🚕 計程車 (起跳+跳錶)</option>
+                                <option value="🚌 公車" ${activity.transport === '🚌 公車' ? 'selected' : ''}>🚌 公車 (單程票價)</option>
+                                <option value="🚇 地鐵" ${activity.transport === '🚇 地鐵' ? 'selected' : ''}>🚇 地鐵 (依距離計費)</option>
+                                <option value="🚄 高鐵" ${activity.transport === '🚄 高鐵' ? 'selected' : ''}>🚄 高鐵 (座位等級)</option>
+                                <option value="🚆 火車" ${activity.transport === '🚆 火車' ? 'selected' : ''}>🚆 火車 (車種+座位)</option>
+                                <option value="✈️ 飛機" ${activity.transport === '✈️ 飛機' ? 'selected' : ''}>✈️ 飛機 (艙等+航線)</option>
+                                <option value="🚢 船舶" ${activity.transport === '🚢 船舶' ? 'selected' : ''}>🚢 船舶 (航程+艙位)</option>
+                                <option value="🚲 腳踏車" ${activity.transport === '🚲 腳踏車' ? 'selected' : ''}>🚲 腳踏車 (租借費)</option>
+                                <option value="🛵 機車" ${activity.transport === '🛵 機車' ? 'selected' : ''}>🛵 機車 (租借+油費)</option>
+                                <option value="🚠 纜車" ${activity.transport === '🚠 纜車' ? 'selected' : ''}>🚠 纜車 (來回票價)</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select>
+                                <option value="15分鐘" ${activity.duration === '15分鐘' ? 'selected' : ''}>15分鐘</option>
+                                <option value="30分鐘" ${activity.duration === '30分鐘' ? 'selected' : ''}>30分鐘</option>
+                                <option value="45分鐘" ${activity.duration === '45分鐘' ? 'selected' : ''}>45分鐘</option>
+                                <option value="1小時" ${activity.duration === '1小時' ? 'selected' : ''}>1小時</option>
+                                <option value="1.5小時" ${activity.duration === '1.5小時' ? 'selected' : ''}>1.5小時</option>
+                                <option value="2小時" ${activity.duration === '2小時' ? 'selected' : ''}>2小時</option>
+                                <option value="2.5小時" ${activity.duration === '2.5小時' ? 'selected' : ''}>2.5小時</option>
+                                <option value="3小時" ${activity.duration === '3小時' ? 'selected' : ''}>3小時</option>
+                                <option value="4小時" ${activity.duration === '4小時' ? 'selected' : ''}>4小時</option>
+                                <option value="5小時" ${activity.duration === '5小時' ? 'selected' : ''}>5小時</option>
+                                <option value="6小時" ${activity.duration === '6小時' ? 'selected' : ''}>6小時</option>
+                                <option value="半天" ${activity.duration === '半天' ? 'selected' : ''}>半天</option>
+                                <option value="全天" ${activity.duration === '全天' ? 'selected' : ''}>全天</option>
+                            </select>
+                        </td>
+                        <td><input type="text" placeholder="費用" value="${activity.cost}"></td>
+                        <td><textarea placeholder="備註">${activity.notes}</textarea></td>
+                        <td><button class="btn btn-danger" onclick="removeRow(this)" style="padding: 5px 8px; font-size: 0.8rem;">刪除</button></td>
+                    `;
+                    table.appendChild(newRow);
+                });
+            });
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98aca5c6f31df238',t:'MTc1OTgzMjIzNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

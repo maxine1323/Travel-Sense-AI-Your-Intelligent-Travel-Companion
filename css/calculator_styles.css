@@ -1,0 +1,203 @@
+body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: #f5f7fa;
+    color: #000;
+}
+
+.header {
+    background: linear-gradient(135deg, #e0d6cb, #e0d6cb);
+    padding: 1rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.logo {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    letter-spacing: 1px;
+    color: #000;
+}
+
+.back-btn {
+    color: #000;
+    transition: all 0.2s ease;
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.back-btn:hover {
+    transform: translateY(-50%) translateX(-3px);
+}
+
+/* Language selector styles matching homepage */
+.lang-selector {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+    z-index: 20;
+}
+
+.lang-btn {
+    background-color: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 20px;
+    padding: 0.3rem 0.8rem;
+    color: #000;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.lang-btn:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.lang-btn i {
+    font-size: 0.9rem;
+}
+
+.lang-menu {
+    position: absolute;
+    top: 40px;
+    right: 0;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 100;
+    padding: 0.5rem;
+    min-width: 120px;
+    display: none;
+    transform-origin: top right;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.lang-option {
+    padding: 0.5rem;
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.2s;
+}
+
+.lang-option:hover {
+    background-color: #f5f5f5;
+}
+
+/* Calculator specific styles */
+.input-field {
+    border: 1px solid #d1d5db;
+    transition: border-color 0.3s ease;
+}
+
+.input-field:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.btn {
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn:hover {
+    background-color: #2563eb;
+    transform: translateY(-2px);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.result-container {
+    background-color: #e0f2fe;
+    border: 1px solid #bfdbfe;
+}
+
+.expense-item {
+    background-color: #ffffff;
+    border: 1px solid #d1d5db;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.expense-item label {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.expense-item input {
+    border: 1px solid #d1d5db;
+    transition: border-color 0.3s ease;
+}
+
+.expense-item input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.result-container h3 {
+    color: #1e40af;
+}
+
+.result-container p {
+    color: #1f2937;
+}
+
+.result-container .total-amount {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2563eb;
+}
+
+.result-container .exchange-rate {
+    font-size: 1.2rem;
+    color: #4b5563;
+}
+
+.result-container .currency {
+    font-size: 1.2rem;
+    color: #1e40af;
+}
+
+.result-container .chart-container {
+    margin-top: 20px;
+}
+
+.result-container .chart-container canvas {
+    max-width: 100%;
+    height: auto;
+}
+
+.result-container .chart-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #1e40af;
+    margin-bottom: 10px;
+}
+
+.result-container .chart-description {
+    font-size: 0.9rem;
+    color: #4b5563;
+    margin-bottom: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+}

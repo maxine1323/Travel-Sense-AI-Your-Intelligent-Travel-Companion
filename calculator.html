@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Sense AI – Your Intelligent Travel Companion - Currency Calculator</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="./css/calculator_styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <!-- Header with navigation -->
+    <div class="header">
+        <a href="./index.html" class="back-btn flex items-center">
+            <i class="fas fa-arrow-left mr-2"></i>
+            <span>Back to Travel Sense AI</span>
+        </a>
+        <!-- <div class="logo">Travel Sense AI – Your Intelligent Travel Companion</div> -->
+        <h1 class="text-xl font-bold">Currency Calculator</h1>
+        
+        <!-- Language selector matching homepage -->
+        <div class="lang-selector">
+            <button class="lang-btn" id="lang-toggle">
+                <i class="fas fa-globe"></i>
+                <span id="current-lang">English</span>
+            </button>
+            
+            <!-- Language selection menu -->
+            <div class="lang-menu" id="lang-menu">
+                <div class="lang-option" data-lang="en"><i class="fas fa-check"></i> English</div>
+                <div class="lang-option" data-lang="zh"><i class="fas fa-check" style="visibility: hidden;"></i> 中文</div>
+                <div class="lang-option" data-lang="ja"><i class="fas fa-check" style="visibility: hidden;"></i> 日本語</div>
+                <div class="lang-option" data-lang="fr"><i class="fas fa-check" style="visibility: hidden;"></i> Français</div>
+                <div class="lang-option" data-lang="de"><i class="fas fa-check" style="visibility: hidden;"></i> Deutsch</div>
+                <div class="lang-option" data-lang="ko"><i class="fas fa-check" style="visibility: hidden;"></i> 한국어</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Left side: Expense input -->
+            <div class="space-y-5">
+                <h2 class="text-xl font-semibold text-blue-700 border-b pb-2" id="expenses-title">💰 費用明細</h2>
+                
+                <div class="space-y-4">
+                    <div class="expense-item">
+                        <label class="block text-gray-700 mb-1" id="flight-label">✈️ 機票費用 (原幣)</label>
+                        <div class="relative">
+                            <input type="number" id="flightCost" class="input-field w-full p-3 rounded-lg" placeholder="0">
+                        </div>
+                    </div>
+                    
+                    <div class="expense-item">
+                        <label class="block text-gray-700 mb-1" id="hotel-label">🏨 住宿費用 (原幣)</label>
+                        <div class="relative">
+                            <input type="number" id="hotelCost" class="input-field w-full p-3 rounded-lg" placeholder="0">
+                        </div>
+                    </div>
+                    
+                    <div class="expense-item">
+                        <label class="block text-gray-700 mb-1" id="transport-label">🚆 交通費用 (原幣)</label>
+                        <div class="relative">
+                            <input type="number" id="transportCost" class="input-field w-full p-3 rounded-lg" placeholder="0">
+                        </div>
+                    </div>
+                    
+                    <div class="expense-item">
+                        <label class="block text-gray-700 mb-1" id="food-label">🍱 餐飲支出 (原幣)</label>
+                        <div class="relative">
+                            <input type="number" id="foodCost" class="input-field w-full p-3 rounded-lg" placeholder="0">
+                        </div>
+                    </div>
+                    
+                    <div class="expense-item">
+                        <label class="block text-gray-700 mb-1" id="entertainment-label">🎉 娛樂支出 (原幣)</label>
+                        <div class="relative">
+                            <input type="number" id="entertainmentCost" class="input-field w-full p-3 rounded-lg" placeholder="0">
+                        </div>
+                    </div>
+                    
+                    <div class="expense-item">
+                        <label class="block text-gray-700 mb-1" id="other-label">💼 其他支出 (原幣)</label>
+                        <div class="relative">
+                            <input type="number" id="otherCost" class="input-field w-full p-3 rounded-lg" placeholder="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right side: Exchange rate and results -->
+            <div class="space-y-5">
+                <h2 class="text-xl font-semibold text-blue-700 border-b pb-2" id="currency-title">💱 匯率設定</h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-700 mb-1" id="currency-label">幣別選擇</label>
+                        <select id="currencySelect" class="input-field w-full p-3 rounded-lg">
+                            <option value="USD" id="usd-option">美元 (USD)</option>
+                            <option value="JPY" id="jpy-option">日圓 (JPY)</option>
+                            <option value="EUR" id="eur-option">歐元 (EUR)</option>
+                            <option value="GBP" id="gbp-option">英鎊 (GBP)</option>
+                            <option value="AUD" id="aud-option">澳幣 (AUD)</option>
+                            <option value="KRW" id="krw-option">韓元 (KRW)</option>
+                            <option value="CNY" id="cny-option">人民幣 (CNY)</option>
+                            <option value="HKD" id="hkd-option">港幣 (HKD)</option>
+                            <option value="TWD" id="twd-option" selected>台幣 (TWD)</option>
+                            <option value="custom" id="custom-option">自訂匯率</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 mb-1" id="exchange-label">匯率 (1原幣 = 幾台幣)</label>
+                        <input type="number" step="0.001" id="exchangeRate" class="input-field w-full p-3 rounded-lg" value="1" min="0.001">
+                    </div>
+                    
+                    <div class="pt-4">
+                        <button onclick="calculateTotal()" class="btn w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg" id="calculate-button">
+                            計算總金額
+                        </button>
+                        <button onclick="clearCalculator()" class="btn w-full mt-3 bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg" id="clear-button">
+                            清除所有內容
+                        </button>
+                    </div>
+                    
+                    <div id="totalResult" class="result-container mt-6 p-4 bg-green-50 rounded-lg hidden">
+                        <!-- Results will be displayed here -->
+                        <h3 class="text-lg font-semibold text-blue-700" id="result-title">總金額 (台幣)</h3>
+                        <p class="text-2xl font-bold text-blue-800 mt-2">
+                            <span id="totalAmount" class="total-amount">0</span> TWD
+                        </p>
+                        <p class="text-sm text-gray-600 mt-1">
+                            匯率：<span id="exchangeRateDisplay" class="exchange-rate">1</span> TWD = <span id="currencyDisplay" class="currency">1</span> <span id="currencySymbol" class="currency-symbol">¥</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exchange rate source -->
+        <div id="attribution" style="display:none; text-align:center; font-size:12px; color:#666; margin-top:20px;"></div>
+
+        <!-- Expense analysis chart -->
+        <div id="chartContainer" class="mt-8 hidden">
+            <h2 class="text-xl font-semibold text-blue-700 border-b pb-2 mb-4">📊 費用分析</h2>
+            <div class="bg-white p-4 rounded-lg shadow">
+                <canvas id="expenseChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Link to external JavaScript file -->
+    <script src="./js/calculator_script.js"></script>
+</body>
+</html>

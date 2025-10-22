@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Sense AI – Your Intelligent Travel Companion - Explore Landmarks</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="./css/landmarks_styles.css">
+</head>
+<body>
+    <!-- Header with navigation -->
+    <div class="header">
+        <a href="./index.html" class="back-btn flex items-center">
+            <i class="fas fa-arrow-left mr-2"></i>
+            <span>Back to Travel Sense AI </span>
+        </a>
+        <!-- <div class="logo">Travel Sense AI – Your Intelligent Travel Companion</div> -->
+        <h1 class="text-xl font-bold">Explore Landmarks</h1>
+        
+        <!-- Language selector matching homepage -->
+        <div class="lang-selector">
+            <button class="lang-btn" id="lang-toggle">
+                <i class="fas fa-globe"></i>
+                <span id="current-lang">English</span>
+            </button>
+            
+            <!-- Language selection menu -->
+            <div class="lang-menu" id="lang-menu">
+                <div class="lang-option" data-lang="en"><i class="fas fa-check"></i> English</div>
+                <div class="lang-option" data-lang="zh"><i class="fas fa-check" style="visibility: hidden;"></i> 中文</div>
+                <div class="lang-option" data-lang="ja"><i class="fas fa-check" style="visibility: hidden;"></i> 日本語</div>
+                <div class="lang-option" data-lang="fr"><i class="fas fa-check" style="visibility: hidden;"></i> Français</div>
+                <div class="lang-option" data-lang="de"><i class="fas fa-check" style="visibility: hidden;"></i> Deutsch</div>
+                <div class="lang-option" data-lang="ko"><i class="fas fa-check" style="visibility: hidden;"></i> 한국어</div>
+            </div>
+        </div>
+    </div>
+
+    <main class="container mx-auto px-4 py-4">
+        <!-- Search block -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-bold mb-4" id="search-title">搜尋世界各地地標</h2>
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-grow">
+                    <input id="search-input" type="text" placeholder="輸入地標名稱、城市或國家..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <select id="region-filter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                        <option value="">所有地區</option>
+                        <option value="asia">亞洲</option>
+                        <option value="europe">歐洲</option>
+                        <option value="northamerica">北美洲</option>
+                        <option value="southamerica">南美洲</option>
+                        <option value="africa">非洲</option>
+                        <option value="oceania">大洋洲</option>
+                    </select>
+                </div>
+                <button id="search-button" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition duration-300">
+                    搜尋
+                </button>
+            </div>
+            <div class="flex flex-wrap gap-2 mt-4">
+                <span class="text-sm text-gray-500" id="popular-searches">熱門搜尋：</span>
+                <button class="search-tag text-sm text-blue-600 hover:text-blue-800 hover:underline">艾菲爾鐵塔</button>
+                <button class="search-tag text-sm text-blue-600 hover:text-blue-800 hover:underline">台北101</button>
+                <button class="search-tag text-sm text-blue-600 hover:text-blue-800 hover:underline">萬里長城</button>
+                <button class="search-tag text-sm text-blue-600 hover:text-blue-800 hover:underline">泰姬瑪哈陵</button>
+                <button class="search-tag text-sm text-blue-600 hover:text-blue-800 hover:underline">羅馬競技場</button>
+            </div>
+        </div>
+
+        <!-- Results title -->
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold" id="results-title">熱門地標</h2>
+            <div class="flex space-x-2">
+                <button id="most-popular" class="px-3 py-1 text-sm rounded-md bg-blue-100 text-blue-700">最熱門</button>
+                <button id="newest" class="px-3 py-1 text-sm rounded-md hover:bg-blue-100 text-gray-600">最新添加</button>
+                <button id="highest-rated" class="px-3 py-1 text-sm rounded-md hover:bg-blue-100 text-gray-600">評分最高</button>
+            </div>
+        </div>
+
+        <!-- Landmark cards area -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="landmarks-container">
+            <!-- Landmark cards will be generated by JavaScript -->
+        </div>
+
+        <!-- Load more button -->
+        <div class="mt-8 flex justify-center">
+            <button id="load-more" class="bg-white hover:bg-gray-100 text-blue-600 font-medium py-2 px-6 border border-gray-300 rounded-lg shadow-sm transition duration-300">
+                載入更多地標
+            </button>
+        </div>
+    </main>
+
+    <!-- Details modal -->
+    <div id="detail-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-bold mb-4">關於我們</h3>
+                    <p class="text-gray-300 text-sm">我們致力於提供全球地標的詳細資訊，幫助旅行者規劃完美的旅程。</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">熱門地區</h3>
+                    <ul class="text-gray-300 text-sm space-y-2">
+                        <li><a href="#" class="hover:text-white">歐洲</a></li>
+                        <li><a href="#" class="hover:text-white">亞洲</a></li>
+                        <li><a href="#" class="hover:text-white">北美洲</a></li>
+                        <li><a href="#" class="hover:text-white">南美洲</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">實用連結</h3>
+                    <ul class="text-gray-300 text-sm space-y-2">
+                        <li><a href="#" class="hover:text-white">旅遊指南</a></li>
+                        <li><a href="#" class="hover:text-white">常見問題</a></li>
+                        <li><a href="#" class="hover:text-white">聯絡我們</a></li>
+                        <li><a href="#" class="hover:text-white">隱私政策</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">訂閱最新消息</h3>
+                    <div class="flex">
+                        <input type="email" placeholder="您的電子郵件" class="px-4 py-2 text-gray-800 rounded-l-lg focus:outline-none w-full">
+                        <button class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-r-lg transition duration-300">訂閱</button>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-6 text-center text-gray-400 text-sm">
+                &copy; 2023 世界地標搜尋. 保留所有權利.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Link to external JavaScript file -->
+    <script src="./js/landmarks_script.js"></script>
+</body>
+</html>

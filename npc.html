@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Maxine — 2D + 3D NPC Ultimate</title>
+  <style>
+    :root {
+      --npc-w: 96px;
+      --npc-h: 210px;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: linear-gradient(180deg, #f7fbff, #e6eff9);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans JP", sans-serif;
+    }
+
+    #speechBox {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 22px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 10px 14px;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+      z-index: 2000;
+      font-size: 14px;
+      max-width: 80%;
+      text-align: center;
+    }
+
+    /* 2D NPC container (use background-image with Base64) */
+    #npc2d {
+      position: absolute;
+      width: var(--npc-w);
+      height: var(--npc-h);
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background-size: contain;
+      background-position: center bottom;
+      background-repeat: no-repeat;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+      z-index: 1500;
+      will-change: transform, left, top;
+    }
+
+    #npc2d.grabbing {
+      cursor: grabbing;
+    }
+
+    /* feature markers (eyes/hands) */
+    #npc2d .eye {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: rgba(0, 0, 0, 0.95);
+      border-radius: 50%;
+      transform-origin: center;
+      z-index: 1600;
+      pointer-events: none;
+    }
+
+    #npc2d .hand {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      background: rgba(255, 153, 153, 0.95);
+      border-radius: 50%;
+      transform-origin: center;
+      z-index: 1600;
+      pointer-events: none;
+    }
+
+    /* bubble (subtitle) */
+    .subtitle {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 92px;
+      background: rgba(255, 255, 255, 0.98);
+      padding: 10px 14px;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+      z-index: 2001;
+      font-size: 15px;
+      max-width: 78%;
+      text-align: center;
+      display: none;
+    }
+
+    /* bubble icons (interactive bubbles) */
+    .bubble {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      opacity: 0.95;
+      z-index: 1600;
+      pointer-events: auto;
+    }
+
+    /* three.js canvas */
+    canvas.three-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      pointer-events: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="npc2d" aria-label="Maxine 2D NPC"></div>
+
+  <div id="subtitle" class="subtitle"></div>
+  <div id="speechBox">（角色正在自言自語…）</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="./js/npc.js"></script>
+
+</body>
+</html>

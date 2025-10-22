@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Sense AI – Your Intelligent Travel Companion</title>
+    <!-- Link to external CSS file -->
+    <link rel="stylesheet" href="./css/styles.css">
+    <!-- Font icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <header>
+            <div class="logo">Travel Sense AI<br><small>Your Intelligent Travel Companion</small></div>
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span id="status-text">Online</span>
+            </div>
+
+            <!-- Language selector -->
+            <div class="lang-selector">
+                <button class="lang-btn" id="lang-toggle">
+                    <i class="fas fa-globe"></i>
+                    <span id="current-lang">English</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- AR container -->
+            <div class="ar-container">
+                <iframe src="./1.html" style="width: 100%; height:100%;" frameborder="0"></iframe>
+            </div>
+
+            <!-- Chat interface -->
+            <div class="chat-container">
+                <div class="chat-header">
+                    <div class="chat-title" id="chat-title">Travel Sense AI – Your Intelligent Travel Companion</div>
+                    <button id="npc-btn"><span id="npc-text">Close</span></button>
+                </div>
+                <!-- <iframe src="./npc.html" style="width: 100%; height:50vh;" frameborder="0"></iframe> -->
+                <div id="npc2d"></div>
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message ai-message flex align-buttom" id="npc-text-msg">
+                        <strong>Travel Sense AI:</strong> <span id="subtitle" class="welcome-message">Hello! I'm Saturday assistant,
+                        at your service.</span>
+                    </div>
+                </div>
+                <div class="input-area">
+                    <input type="text" id="user-input"
+                        placeholder="'Activate'to activate voice..." />
+                    <button class="voice-btn" id="voice-btn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+
+
+            <!-- Feature panels -->
+            <div class="panel-container">
+                <div class="panel">
+                    <div class="panel-title"><i class="fas fa-cloud-sun"></i> <span id="weather-title">Weather</span>
+                    </div>
+                    <a href="./taiwan_weather.html" class="feature-btn" id="weather-current">
+                        <i class="fas fa-map-marker-alt"></i> <span id="current-weather-text">Current Weather</span>
+                    </a>
+                    <a href="./world_weather.html" class="feature-btn" id="weather-forecast">
+                        <i class="fas fa-calendar-alt"></i> <span id="forecast-text">Forecast</span>
+                    </a>
+                </div>
+                <div class="panel">
+                    <div class="panel-title"><i class="fas fa-plane"></i> <span id="travel-title">Travel
+                            Assistant</span></div>
+                    <a href="./check_flights.html" class="feature-btn" id="flight-search">
+                        <i class="fas fa-search"></i> <span id="flight-search-text">Flight Search</span>
+                    </a>
+                    <a href="./landmarks.html" class="feature-btn" id="landmark-explore">
+                        <i class="fas fa-binoculars"></i> <span id="landmark-text">Explore Landmarks</span>
+                    </a>
+                </div>
+                <div class="panel">
+                    <div class="panel-title"> <span id="har-title">Have a rest</span></div>
+                    <a href="./worldr.html" class="feature-btn" id="worldr-search">
+                        <i class="fas fa-search"></i> <span id="worldr-search-text">Hotels around the world / Worldwide hotels</span>
+                    </a>
+                    <a href="./worldeat.html" class="feature-btn" id="worldeat-explore">
+                        <i class="fas fa-binoculars"></i> <span id="worldeat-text">Delicious food from around the world / World cuisines</span>
+                    </a>
+                </div>
+                <div class="panel">
+                    <div class="panel-title"><i class="fas fa-money-bill-wave"></i> <span id="currency-title">Currency
+                            Exchange</span></div>
+                    <a href="./calculator.html" class="feature-btn" id="currency-converter">
+                        <i class="fas fa-exchange-alt"></i> <span id="currency-converter-text">Currency Converter</span>
+                    </a>
+                    <a href="./sch.html" class="feature-btn" id="itinerary-converter">
+                        <span id="itinerary-converter-text">Itinerary</span>
+                    </a>
+                </div>
+            </div>
+            <div class="panel-container">
+                <div class="panel">
+                    <div class="panel-title"><i class="fas fa-cog"></i> <span id="settings-title">Settings</span></div>
+                    <a href="#" class="feature-btn" id="generate-image">
+                        <i class="fas fa-image"></i> <span id="generate-image-text">Designers</span>
+                    </a>
+                    <a href="#" class="feature-btn" id="clear-memory">
+                        <i class="fas fa-trash-alt"></i> <span id="clear-memory-text">Delete all history for this website</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- Full-screen Image Modal -->
+        <div id="full-image-modal" class="full-image-modal">
+            <div class="modal-content">
+                <img id="modal-image" src="" alt="Easter egg image">
+                <span class="close-modal">&times;</span>
+            </div>
+        </div>
+
+        <!-- Language selection menu -->
+        <div class="lang-menu" id="lang-menu">
+            <div class="lang-option" data-lang="en"><i class="fas fa-check"></i> English</div>
+            <div class="lang-option" data-lang="zh"><i class="fas fa-check" style="visibility: hidden;"></i> 中文</div>
+            <div class="lang-option" data-lang="ja"><i class="fas fa-check" style="visibility: hidden;"></i> 日本語</div>
+            <div class="lang-option" data-lang="fr"><i class="fas fa-check" style="visibility: hidden;"></i> Français
+            </div>
+            <div class="lang-option" data-lang="de"><i class="fas fa-check" style="visibility: hidden;"></i> Deutsch
+            </div>
+            <div class="lang-option" data-lang="ko"><i class="fas fa-check" style="visibility: hidden;"></i> 한국어</div>
+        </div>
+    </div>
+
+    <!-- Link to external JavaScript file -->
+    <script src="./js/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="./js/npc.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Sense AI – Your Intelligent Travel Companion - 台灣天氣查詢</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="./css/weather_styles.css">
+</head>
+<body class="p-4 md:p-0">
+    <!-- Header with navigation -->
+    <div class="header">
+        <a href="./index.html" class="back-btn flex items-center">
+            <i class="fas fa-arrow-left mr-2"></i>
+            <span>返回 Travel Sense AI</span>
+        </a>
+        <!-- <div class="logo">Travel Sense AI – Your Intelligent Travel Companion</div> -->
+        <h1 class="text-xl font-bold">台灣天氣查詢</h1>
+        
+        <!-- Language selector matching homepage -->
+        <div class="lang-selector">
+            <button class="lang-btn" id="lang-toggle">
+                <i class="fas fa-globe"></i>
+                <span id="current-lang">中文</span>
+            </button>
+            
+            <!-- Language selection menu -->
+            <div class="lang-menu" id="lang-menu">
+                <div class="lang-option" data-lang="en"><i class="fas fa-check" style="visibility: hidden;"></i> English</div>
+                <div class="lang-option" data-lang="zh"><i class="fas fa-check"></i> 中文</div>
+                <div class="lang-option" data-lang="ja"><i class="fas fa-check" style="visibility: hidden;"></i> 日本語</div>
+                <div class="lang-option" data-lang="fr"><i class="fas fa-check" style="visibility: hidden;"></i> Français</div>
+                <div class="lang-option" data-lang="de"><i class="fas fa-check" style="visibility: hidden;"></i> Deutsch</div>
+                <div class="lang-option" data-lang="ko"><i class="fas fa-check" style="visibility: hidden;"></i> 한국어</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-3xl mx-auto my-8">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-white drop-shadow-md">台灣天氣查詢</h1>
+            <p class="text-blue-800 mt-2">選擇縣市查看即時天氣資訊</p>
+        </div>
+        
+        <div class="bg-white bg-opacity-80 rounded-xl p-6 weather-card">
+            <div class="mb-6">
+                <label for="citySelect" class="block text-sm font-medium text-gray-700 mb-2">選擇縣市：</label>
+                <select id="citySelect" class="city-select w-full p-3 border border-blue-300 rounded-lg text-gray-700 appearance-none pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                    <option value="" selected>請選擇縣市</option>
+                    <option value="taipei">台北市</option>
+                    <option value="newtaipei">新北市</option>
+                    <option value="taoyuan">桃園市</option>
+                    <option value="taichung">台中市</option>
+                    <option value="tainan">台南市</option>
+                    <option value="kaohsiung">高雄市</option>
+                    <option value="hsinchu-city">新竹市</option>
+                    <option value="hsinchu">新竹縣</option>
+                    <option value="miaoli">苗栗縣</option>
+                    <option value="changhua">彰化縣</option>
+                    <option value="nantou">南投縣</option>
+                    <option value="yunlin">雲林縣</option>
+                    <option value="chiayi-city">嘉義市</option>
+                    <option value="chiayi">嘉義縣</option>
+                    <option value="pingtung">屏東縣</option>
+                    <option value="yilan">宜蘭縣</option>
+                    <option value="hualien">花蓮縣</option>
+                    <option value="taitung">台東縣</option>
+                    <option value="penghu">澎湖縣</option>
+                    <option value="kinmen">金門縣</option>
+                    <option value="lienchiang">連江縣</option>
+                </select>
+            </div>
+            
+            <div id="weatherInfo" class="hidden">
+                <div class="flex flex-col md:flex-row items-center justify-between p-4 bg-blue-50 rounded-lg">
+                    <div class="flex items-center mb-4 md:mb-0">
+                        <div id="weatherIcon" class="w-20 h-20 mr-4 flex items-center justify-center">
+                            <!-- Weather icon will be inserted here -->
+                        </div>
+                        <div>
+                            <h2 id="cityName" class="text-2xl font-bold text-blue-800"></h2>
+                            <p id="weatherDesc" class="text-gray-600"></p>
+                        </div>
+                    </div>
+                    <div class="text-center md:text-right">
+                        <div id="temperature" class="text-4xl font-bold text-blue-600"></div>
+                        <div class="flex justify-center md:justify-end mt-2 space-x-4">
+                            <div>
+                                <span class="text-gray-500">濕度</span>
+                                <div id="humidity" class="font-medium"></div>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">風速</span>
+                                <div id="wind" class="font-medium"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-3">未來天氣預報</h3>
+                    <div id="forecast" class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                        <!-- Forecast items will be inserted here -->
+                    </div>
+                </div>
+            </div>
+            
+            <div id="loadingIndicator" class="hidden py-12 text-center">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
+                <p class="mt-2 text-blue-600">載入中...</p>
+            </div>
+            
+            <div id="noSelection" class="py-12 text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                </svg>
+                <p class="mt-4 text-gray-500">請選擇縣市以查看天氣資訊</p>
+            </div>
+        </div>
+        
+        <div class="mt-4 text-center text-sm text-blue-800">
+            <p>此為示範用天氣資訊，非實際氣象資料</p>
+        </div>
+    </div>
+
+    <!-- Link to external JavaScript file with weather data -->
+    <script src="./js/weather_script.js"></script>
+</body>
+</html>
